@@ -264,6 +264,11 @@ body {
 }
 
 /* TASK CARD */
+@keyframes pulseWarning {
+  0% { box-shadow: 0 0 0 0 rgba(245,166,35,0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(245,166,35,0); }
+  100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); }
+}
 .task-card {
   background: var(--bg2);
   border: 1px solid var(--border);
@@ -285,6 +290,14 @@ body {
   opacity: .5;
   transform: rotate(2deg);
   cursor: grabbing;
+}
+.task-card.nearing-deadline {
+  border: 1px solid var(--amber);
+  animation: pulseWarning 2s infinite;
+}
+.task-card.overdue-deadline {
+  border: 1px solid var(--red);
+  background: rgba(240,82,79,0.08);
 }
 .task-card-accent {
   position: absolute;
@@ -615,9 +628,9 @@ body {
     <div class="stat-bar"><div class="stat-fill" id="barPending" style="background:var(--text3);width:0%"></div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-num" id="statUrgent" style="color:var(--red)">0</div>
-    <div class="stat-label">本週緊急</div>
-    <div class="stat-bar"><div class="stat-fill" id="barUrgent" style="background:var(--red);width:0%"></div></div>
+    <div class="stat-num" id="statOverdue" style="color:var(--red)">0</div>
+    <div class="stat-label">已延宕</div>
+    <div class="stat-bar"><div class="stat-fill" id="barOverdue" style="background:var(--red);width:0%"></div></div>
   </div>
 </div>
 
@@ -794,15 +807,12 @@ function save() {
 // ─── AUTH & TEAM ─────────────────────────────────────────────────────────────
 function toggleAuth() {
   if (!isAuthorized) {
-    if (prompt("請輸入管理員密碼以啟用編輯功能：") === ADMIN_PWD) {
+    const pwd = prompt("請輸入密碼：");
+    if (pwd === ADMIN_PWD) {
       isAuthorized = true;
-      showToast('🔓 已切換至管理員模式');
-    } else {
-      alert("密碼錯誤！"); return;
     }
   } else {
     isAuthorized = false;
-    showToast('🔒 已切換至唯讀模式');
   }
   updateAuthUI();
 }
@@ -853,7 +863,6 @@ function addMember() {
     localStorage.setItem('hr_team_members', JSON.stringify(teamMembers));
     input.value = '';
     renderAll();
-    showToast(`✅ 已新增團隊成員：${name}`);
   }
 }
 
@@ -904,16 +913,29 @@ function updateStats() {
   const done  = tasks.filter(t=>t.status==='已完成').length;
   const doing = tasks.filter(t=>t.status==='進行中').length;
   const pending = tasks.filter(t=>t.status==='待處理').length;
-  const urgent = tasks.filter(t=>(t.column==='urgent'||t.column==='week') && t.status!=='已完成').length;
+  
+  let overdue = 0;
+  const now = new Date(); now.setHours(0,0,0,0);
+  tasks.forEach(t => {
+    if (t.status !== '已完成' && t.deadline) {
+      const d = new Date(t.deadline);
+      if (!isNaN(d) && Math.ceil((d-now)/(1000*60*60*24)) < 0) {
+        overdue++;
+      }
+    }
+  });
+
   document.getElementById('statTotal').textContent   = total;
   document.getElementById('statDone').textContent    = done;
   document.getElementById('statDoing').textContent   = doing;
   document.getElementById('statPending').textContent = pending;
-  document.getElementById('statUrgent').textContent  = urgent;
+  document.getElementById('statOverdue').textContent = overdue;
+  
   document.getElementById('barDone').style.width    = total ? (done/total*100)+'%' : '0%';
   document.getElementById('barDoing').style.width   = total ? (doing/total*100)+'%' : '0%';
   document.getElementById('barPending').style.width = total ? (pending/total*100)+'%' : '0%';
-  document.getElementById('barUrgent').style.width  = total ? (urgent/total*100)+'%' : '0%';
+  document.getElementById('barOverdue').style.width = total ? (overdue/total*100)+'%' : '0%';
+  
   document.getElementById('progressFill').style.width = total ? (done/total*100)+'%' : '0%';
   document.getElementById('progressText').textContent = `${done} / ${total} 完成`;
 }
@@ -953,6 +975,17 @@ function renderCard(t) {
   const avTxt = t.assignee ? t.assignee[0] : '';
   const dragClass = isAuthorized ? 'draggable' : '';
   
+  let cardStatusClass = '';
+  if (t.status !== '已完成' && t.deadline) {
+    const d = new Date(t.deadline);
+    if (!isNaN(d)) {
+      const now = new Date(); now.setHours(0,0,0,0);
+      const diff = Math.ceil((d-now)/(1000*60*60*24));
+      if (diff < 0) cardStatusClass = 'overdue-deadline';
+      else if (diff >= 0 && diff <= 3) cardStatusClass = 'nearing-deadline';
+    }
+  }
+  
   const actionButtons = isAuthorized ? `
     <div class="task-actions">
       <button class="task-btn" onclick="openModal(${t.id})" title="編輯">
@@ -964,7 +997,7 @@ function renderCard(t) {
     </div>` : '';
 
   return `
-  <div class="task-card ${dragClass}" draggable="${isAuthorized ? 'true' : 'false'}"
+  <div class="task-card ${dragClass} ${cardStatusClass}" draggable="${isAuthorized ? 'true' : 'false'}"
        ondragstart="${isAuthorized ? `dragStart(event,${t.id})` : ''}"
        ondragend="${isAuthorized ? 'dragEnd(event)' : ''}"
        id="card-${t.id}">
@@ -1037,7 +1070,6 @@ function drop(e, colId) {
     task.column = colId;
     save();
     renderAll();
-    showToast('✅ 任務已移至「' + COLUMNS.find(c=>c.id===colId).label + '」');
   }
   dragId = null;
 }
@@ -1095,10 +1127,8 @@ function saveTask() {
   if (editingId) {
     const idx = tasks.findIndex(t=>t.id===editingId);
     tasks[idx] = { ...tasks[idx], ...data };
-    showToast('✅ 任務已更新');
   } else {
     tasks.push({ id: nextId++, ...data });
-    showToast('✅ 任務已新增');
   }
   save();
   closeModal();
@@ -1112,7 +1142,6 @@ function deleteTask(id) {
   tasks = tasks.filter(t=>t.id!==id);
   save();
   renderAll();
-  showToast('🗑 任務已刪除');
 }
 
 // ─── TOAST ───────────────────────────────────────────────────────────────────
