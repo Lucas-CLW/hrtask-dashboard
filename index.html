@@ -269,10 +269,12 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 12px;
-  cursor: grab;
   transition: transform .15s, box-shadow .15s, border-color .15s;
   position: relative;
   overflow: hidden;
+}
+.task-card.draggable {
+  cursor: grab;
 }
 .task-card:hover {
   border-color: var(--border2);
@@ -753,7 +755,6 @@ try {
   const rawTasks = localStorage.getItem('hr_tasks');
   const parsed = JSON.parse(rawTasks);
   if (Array.isArray(parsed)) {
-    // 防錯處理：避免 undefined 破壞字串比對
     tasks = parsed.map(t => ({
       ...t,
       name: t.name || t.title || '未命名任務',
@@ -784,7 +785,7 @@ let editingId = null;
 let filters = { status: 'all', complexity: 'all', assignee: 'all' };
 let dragId = null;
 let isAuthorized = false;
-const ADMIN_PWD = "hr888";
+const ADMIN_PWD = "hr";
 
 function save() {
   localStorage.setItem('hr_tasks', JSON.stringify(tasks));
@@ -793,7 +794,7 @@ function save() {
 // ─── AUTH & TEAM ─────────────────────────────────────────────────────────────
 function toggleAuth() {
   if (!isAuthorized) {
-    if (prompt("請輸入管理員密碼以啟用編輯功能 (預設密碼為 hr888)：") === ADMIN_PWD) {
+    if (prompt("請輸入管理員密碼以啟用編輯功能：") === ADMIN_PWD) {
       isAuthorized = true;
       showToast('🔓 已切換至管理員模式');
     } else {
@@ -836,10 +837,12 @@ function renderTeam() {
   ).join('');
 
   const sel = document.getElementById('fAssignee');
-  const curVal = sel.value;
-  sel.innerHTML = `<option value="">請選擇負責人...</option>` + 
-                  teamMembers.map(m => `<option value="${m}">${m}</option>`).join('');
-  sel.value = curVal;
+  if (sel) {
+      const curVal = sel.value;
+      sel.innerHTML = `<option value="">請選擇負責人...</option>` + 
+                      teamMembers.map(m => `<option value="${m}">${m}</option>`).join('');
+      sel.value = curVal;
+  }
 }
 
 function addMember() {
@@ -948,6 +951,7 @@ function renderCard(t) {
   const dlText  = t.deadline || '—';
   const avc = t.assignee ? avatarColor(t.assignee) : '#545d78';
   const avTxt = t.assignee ? t.assignee[0] : '';
+  const dragClass = isAuthorized ? 'draggable' : '';
   
   const actionButtons = isAuthorized ? `
     <div class="task-actions">
@@ -960,7 +964,7 @@ function renderCard(t) {
     </div>` : '';
 
   return `
-  <div class="task-card" draggable="${isAuthorized ? 'true' : 'false'}"
+  <div class="task-card ${dragClass}" draggable="${isAuthorized ? 'true' : 'false'}"
        ondragstart="${isAuthorized ? `dragStart(event,${t.id})` : ''}"
        ondragend="${isAuthorized ? 'dragEnd(event)' : ''}"
        id="card-${t.id}">
