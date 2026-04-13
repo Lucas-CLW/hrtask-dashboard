@@ -248,8 +248,7 @@ body {
   font-size: 11px;
   color: var(--text3);
   font-weight: 500;
-  writing-mode: vertical-lr;
-  transform: rotate(180deg);
+  writing-mode: vertical-lr; /* 移除了會導致顛倒的 transform 屬性 */
   text-align: center;
   letter-spacing: 0.2em;
 }
@@ -1177,7 +1176,7 @@ function renderCard(t) {
 function renderAll() {
   renderTeam(); 
   updateStats();
-  updateWorkload(); // 呼叫動態負荷量計算
+  updateWorkload();
   updateAssigneeFilters();
   
   const filtered = getFiltered();
@@ -1326,3 +1325,5 @@ updateAuthUI();
 </script>
 </body>
 </html>
+
+}
