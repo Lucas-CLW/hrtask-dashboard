@@ -205,6 +205,91 @@ body {
   transition: width .5s ease;
 }
 
+/* PROGRESS */
+.progress-section {
+  padding: 12px 2rem;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.progress-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--teal));
+  border-radius: 3px;
+  transition: width .5s ease;
+}
+.progress-text {
+  font-size: 12px;
+  color: var(--text3);
+  white-space: nowrap;
+  font-family: 'DM Mono', monospace;
+}
+
+/* WORKLOAD SECTION */
+.workload-section {
+  padding: 15px 2rem;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  overflow-x: auto;
+}
+.workload-label {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 500;
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  text-align: center;
+  letter-spacing: 0.2em;
+}
+.workload-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.wl-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.wl-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.wl-pt { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--purple); font-weight: 700; }
+.wl-bar-bg {
+  height: 4px;
+  background: rgba(167,139,250,0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.wl-bar-fill {
+  height: 100%;
+  background: var(--purple);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+.wl-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text2);
+}
+
 /* BOARD */
 .board-wrap {
   padding: 20px;
@@ -520,35 +605,6 @@ body {
 }
 .btn-save:hover { opacity: .85; }
 
-/* PROGRESS */
-.progress-section {
-  padding: 12px 2rem;
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.progress-bar-wrap {
-  flex: 1;
-  height: 6px;
-  background: var(--border);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--blue), var(--teal));
-  border-radius: 3px;
-  transition: width .5s ease;
-}
-.progress-text {
-  font-size: 12px;
-  color: var(--text3);
-  white-space: nowrap;
-  font-family: 'DM Mono', monospace;
-}
-
 /* EMPTY */
 .col-empty {
   font-size: 12px;
@@ -645,6 +701,9 @@ body {
   <span class="progress-text" id="progressText">0 / 0</span>
 </div>
 
+<div class="workload-section" id="workloadSection">
+  </div>
+
 <div class="filter-bar" id="teamBar" style="display:none; border-bottom: 1px solid var(--border); background:var(--bg3);">
   <span class="filter-label" style="color:var(--teal);">團隊管理</span>
   <div class="filter-pills" id="teamList"></div>
@@ -675,9 +734,18 @@ body {
   <div class="filter-pills" id="assigneeFilters">
     <button class="pill active" data-group="assignee" data-val="all" onclick="setFilter('assignee','all',this)">全部</button>
   </div>
+  
+  <div class="filter-sep"></div>
+  <span class="filter-label">排序</span>
+  <select class="search-input" id="sortSelect" style="width: auto; padding: 4px 10px; font-size: 12px;" onchange="renderAll()">
+    <option value="default">預設順序</option>
+    <option value="deadlineAsc">截止日 (近 &rarr; 遠)</option>
+    <option value="complexityDesc">複雜度 (高 &rarr; 低)</option>
+  </select>
+
   <div class="search-wrap">
     <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.868-3.834zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
-    <input class="search-input" type="text" placeholder="搜尋任務..." id="searchInput" oninput="renderAll()">
+    <input class="search-input" style="padding-left: 32px;" type="text" placeholder="搜尋任務..." id="searchInput" oninput="renderAll()">
   </div>
 </div>
 
@@ -698,7 +766,7 @@ body {
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">截止時間</label>
-        <input class="form-control" id="fDeadline" type="text" placeholder="e.g. 2026-04-30">
+        <input class="form-control" id="fDeadline" type="date" placeholder="e.g. 2026-04-30">
       </div>
       <div class="form-group">
         <label class="form-label">負責人</label>
@@ -877,7 +945,7 @@ function removeMember(name) {
   }
 }
 
-// ─── FILTERS ─────────────────────────────────────────────────────────────────
+// ─── FILTERS & SORTING ───────────────────────────────────────────────────────
 function setFilter(group, val, btn) {
   filters[group] = val;
   document.querySelectorAll(`[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
@@ -900,6 +968,25 @@ function getFiltered() {
   });
 }
 
+function getSorted(tasksArray) {
+  const sortSelect = document.getElementById('sortSelect');
+  const sortType = sortSelect ? sortSelect.value : 'default';
+  let sorted = [...tasksArray];
+
+  if (sortType === 'deadlineAsc') {
+    sorted.sort((a, b) => {
+      if (!a.deadline) return 1;
+      if (!b.deadline) return -1;
+      return new Date(a.deadline) - new Date(b.deadline);
+    });
+  } else if (sortType === 'complexityDesc') {
+    sorted.sort((a, b) => (b.complexity || 0) - (a.complexity || 0));
+  } else {
+    sorted.sort((a, b) => a.id - b.id);
+  }
+  return sorted;
+}
+
 function updateAssigneeFilters() {
   const assignees = [...new Set([...teamMembers, ...tasks.map(t=>t.assignee).filter(Boolean)])].sort();
   const wrap = document.getElementById('assigneeFilters');
@@ -908,6 +995,57 @@ function updateAssigneeFilters() {
   assignees.forEach(a => {
     wrap.innerHTML += `<button class="pill ${cur===a?'active':''}" data-group="assignee" data-val="${a}" onclick="setFilter('assignee','${a}',this)">${a}</button>`;
   });
+}
+
+// ─── WORKLOAD CALCULATION ────────────────────────────────────────────────────
+function updateWorkload() {
+  const container = document.getElementById('workloadSection');
+  if (!container) return;
+
+  const activeTasks = tasks.filter(t => t.status !== '已完成');
+  const loadMap = {};
+  
+  teamMembers.forEach(m => loadMap[m] = { count: 0, complexity: 0 });
+  loadMap['未指派'] = { count: 0, complexity: 0 };
+
+  let maxComplexity = 1;
+
+  activeTasks.forEach(t => {
+    const assignee = (t.assignee && teamMembers.includes(t.assignee)) ? t.assignee : (t.assignee ? t.assignee : '未指派');
+    if (!loadMap[assignee]) loadMap[assignee] = { count: 0, complexity: 0 };
+    loadMap[assignee].count += 1;
+    loadMap[assignee].complexity += (Number(t.complexity) || 1);
+  });
+
+  Object.keys(loadMap).forEach(k => {
+    if (loadMap[k].complexity > maxComplexity) maxComplexity = loadMap[k].complexity;
+  });
+
+  let html = `<span class="workload-label">負荷評估</span>`;
+  
+  Object.keys(loadMap).forEach(m => {
+    if (m === '未指派' && loadMap[m].count === 0) return;
+    
+    const data = loadMap[m];
+    const baseline = Math.max(maxComplexity, 10); // 以10為基礎基準點防止比例失真
+    const pct = Math.min((data.complexity / baseline) * 100, 100);
+    
+    html += `
+      <div class="workload-card">
+        <div class="wl-head">
+          <span class="wl-name">${m}</span>
+          <span class="wl-pt">${data.complexity} pt</span>
+        </div>
+        <div class="wl-bar-bg"><div class="wl-bar-fill" style="width:${pct}%"></div></div>
+        <div class="wl-details">
+          <span>未完成任務</span>
+          <span>${data.count} 件</span>
+        </div>
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
 }
 
 // ─── STATS ───────────────────────────────────────────────────────────────────
@@ -1039,12 +1177,16 @@ function renderCard(t) {
 function renderAll() {
   renderTeam(); 
   updateStats();
+  updateWorkload(); // 呼叫動態負荷量計算
   updateAssigneeFilters();
+  
   const filtered = getFiltered();
+  const sortedFiltered = getSorted(filtered); 
+
   const board = document.getElementById('board');
   board.innerHTML = '';
   COLUMNS.forEach(col => {
-    const colTasks = filtered.filter(t=>t.column===col.id);
+    const colTasks = sortedFiltered.filter(t=>t.column===col.id);
     const div = document.createElement('div');
     div.className = 'column';
     div.innerHTML = `
