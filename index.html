@@ -337,7 +337,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 100px;
+  min-height: 20px;
   padding: 4px 0;
 }
 .col-body.drag-over {
@@ -345,6 +345,40 @@ body {
   outline-offset: 4px;
   border-radius: var(--radius);
   background: var(--blue-bg);
+}
+
+/* COMPLETED ACCORDION (新增收納區塊樣式) */
+.completed-toggle {
+  font-size: 11px;
+  color: var(--text3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  margin-top: 4px;
+  transition: all .15s;
+}
+.completed-toggle:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--text2);
+  border-color: var(--text3);
+}
+.completed-tasks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+  min-height: 20px; 
+}
+.completed-tasks-container.drag-over {
+  outline: 2px dashed var(--green);
+  outline-offset: 4px;
+  border-radius: var(--radius);
+  background: var(--green-bg);
 }
 
 /* TASK CARD WARNING ANIMATION */
@@ -736,15 +770,17 @@ body {
     </div>
     
     <div class="filter-sep"></div>
-    <span class="filter-label">排序</span>
-    <select class="search-input" id="sortSelect" style="width: auto; padding: 4px 10px; font-size: 12px;" onchange="renderAll()">
-      <option value="default">預設順序</option>
-      <option value="deadlineAsc">截止日 (近 &rarr; 遠)</option>
-      <option value="complexityDesc">複雜度 (高 &rarr; 低)</option>
-    </select>
+    <div style="display:flex; align-items:center; gap:6px; white-space:nowrap;">
+      <span class="filter-label">排序</span>
+      <select class="search-input" id="sortSelect" style="width: auto; padding: 4px 10px; font-size: 12px;" onchange="renderAll()">
+        <option value="default">手動排序</option>
+        <option value="deadlineAsc">截止日 (近 &rarr; 遠)</option>
+        <option value="complexityDesc">複雜度 (高 &rarr; 低)</option>
+      </select>
+    </div>
   </div>
 
-  <div class="search-wrap" style="flex-shrink: 0; margin-left: 10px; padding-top: 2px;">
+  <div class="search-wrap" style="flex-shrink: 0; margin-left: 10px; margin-top: 2px;">
     <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.868-3.834zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
     <input class="search-input" style="padding-left: 32px;" type="text" placeholder="搜尋任務..." id="searchInput" oninput="renderAll()">
   </div>
@@ -983,7 +1019,8 @@ function getSorted(tasksArray) {
   } else if (sortType === 'complexityDesc') {
     sorted.sort((a, b) => (b.complexity || 0) - (a.complexity || 0));
   } else {
-    sorted.sort((a, b) => a.id - b.id);
+    // 預設順序保持與陣列相同
+    return sorted;
   }
   return sorted;
 }
@@ -1186,53 +1223,159 @@ function renderAll() {
 
   const board = document.getElementById('board');
   board.innerHTML = '';
+  
   COLUMNS.forEach(col => {
+    // 依據狀態分離「進行中/待處理」與「已完成」的任務
     const colTasks = sortedFiltered.filter(t=>t.column===col.id);
+    const activeTasks = colTasks.filter(t=>t.status !== '已完成');
+    const completedTasks = colTasks.filter(t=>t.status === '已完成');
+
     const div = document.createElement('div');
     div.className = 'column';
-    div.innerHTML = `
+    
+    let html = `
       <div class="col-header">
         <span class="col-dot ${col.dot}"></span>
         <span class="col-title">${col.label}</span>
-        <span class="col-count">${colTasks.length}</span>
+        <span class="col-count">${activeTasks.length}</span>
       </div>
-      <div class="col-body" id="col-${col.id}"
-           ondragover="${isAuthorized ? `dragOver(event,'${col.id}')` : ''}"
-           ondragleave="${isAuthorized ? 'dragLeave(event)' : ''}"
-           ondrop="${isAuthorized ? `drop(event,'${col.id}')` : ''}">
-        ${colTasks.length ? colTasks.map(renderCard).join('') : '<div class="col-empty">拖曳任務至此</div>'}
-      </div>`;
+      <div class="col-body" id="col-active-${col.id}"
+           ondragover="dragOver(event,'${col.id}')"
+           ondragleave="dragLeave(event)"
+           ondrop="drop(event,'${col.id}', false)">
+        ${activeTasks.length ? activeTasks.map(renderCard).join('') : '<div class="col-empty">拖曳任務至此</div>'}
+      </div>
+    `;
+
+    // 渲染收納區塊 (管理模式下恆顯示，方便拖入；唯讀模式下有任務才顯示)
+    if (completedTasks.length > 0 || isAuthorized) {
+      html += `
+        <div class="completed-toggle" onclick="toggleCompleted('${col.id}')">
+          <span>已收納 (${completedTasks.length})</span>
+          <span id="toggle-icon-${col.id}">▼</span>
+        </div>
+        <div class="completed-tasks-container" id="completed-${col.id}" style="display:none;"
+             ondragover="dragOver(event,'${col.id}')"
+             ondragleave="dragLeave(event)"
+             ondrop="drop(event,'${col.id}', true)">
+          ${completedTasks.length ? completedTasks.map(renderCard).join('') : '<div class="col-empty" style="padding:10px;">拖曳至此標記完成</div>'}
+        </div>
+      `;
+    }
+
+    div.innerHTML = html;
     board.appendChild(div);
   });
 }
 
+function toggleCompleted(colId) {
+    const container = document.getElementById('completed-' + colId);
+    const icon = document.getElementById('toggle-icon-' + colId);
+    if (container.style.display === 'none') {
+        container.style.display = 'flex';
+        icon.textContent = '▲';
+    } else {
+        container.style.display = 'none';
+        icon.textContent = '▼';
+    }
+}
+
 // ─── DRAG & DROP ─────────────────────────────────────────────────────────────
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll('.task-card:not(.dragging)')];
+  return draggableElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) {
+      return { offset: offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
 function dragStart(e, id) {
   dragId = id;
   setTimeout(() => document.getElementById('card-'+id)?.classList.add('dragging'), 0);
   e.dataTransfer.effectAllowed = 'move';
 }
+
 function dragEnd(e) {
   document.querySelectorAll('.task-card').forEach(c=>c.classList.remove('dragging'));
-  document.querySelectorAll('.col-body').forEach(c=>c.classList.remove('drag-over'));
+  document.querySelectorAll('.col-body, .completed-tasks-container').forEach(c=>c.classList.remove('drag-over'));
 }
+
 function dragOver(e, colId) {
   e.preventDefault();
-  document.querySelectorAll('.col-body').forEach(c=>c.classList.remove('drag-over'));
-  document.getElementById('col-'+colId)?.classList.add('drag-over');
+  if (!isAuthorized) return;
+  const container = e.currentTarget;
+  container.classList.add('drag-over');
+
+  const sortType = document.getElementById('sortSelect').value;
+  // 僅在「手動排序」模式下即時移動 DOM 以顯示插入位置
+  if (sortType === 'default') {
+    const afterElement = getDragAfterElement(container, e.clientY);
+    const draggable = document.querySelector('.dragging');
+    if (draggable) {
+      if (afterElement == null) {
+        container.appendChild(draggable);
+      } else {
+        container.insertBefore(draggable, afterElement);
+      }
+    }
+  }
 }
+
 function dragLeave(e) {
   e.currentTarget.classList.remove('drag-over');
 }
-function drop(e, colId) {
+
+function drop(e, colId, isCompletedZone) {
   e.preventDefault();
-  document.querySelectorAll('.col-body').forEach(c=>c.classList.remove('drag-over'));
-  const task = tasks.find(t=>t.id===dragId);
-  if (task && task.column !== colId) {
-    task.column = colId;
-    save();
-    renderAll();
+  document.querySelectorAll('.col-body, .completed-tasks-container').forEach(c=>c.classList.remove('drag-over'));
+  if (!isAuthorized || !dragId) return;
+
+  const taskIndex = tasks.findIndex(t => t.id === dragId);
+  if (taskIndex === -1) return;
+  const task = tasks[taskIndex];
+
+  // 1. 更新任務所屬欄位與狀態
+  task.column = colId;
+  if (isCompletedZone) {
+    task.status = '已完成';
+  } else if (task.status === '已完成') {
+    task.status = '進行中'; // 從收納區拉出時自動改為進行中
   }
+
+  // 2. 處理手動排序陣列邏輯
+  const sortType = document.getElementById('sortSelect').value;
+  if (sortType === 'default') {
+    const container = e.currentTarget;
+    const cards = [...container.querySelectorAll('.task-card')];
+    const newDomIndex = cards.findIndex(c => c.id === `card-${dragId}`);
+
+    // 從原位置移除
+    tasks.splice(taskIndex, 1);
+
+    if (newDomIndex === -1 || newDomIndex === cards.length - 1) {
+        // 放到了該區域的最末端，尋找邏輯上的最後一個相符任務插入
+        let insertIndex = tasks.length;
+        for(let i = tasks.length - 1; i >= 0; i--) {
+            if (tasks[i].column === colId && (isCompletedZone ? tasks[i].status === '已完成' : tasks[i].status !== '已完成')) {
+               insertIndex = i + 1; break;
+            }
+        }
+        tasks.splice(insertIndex, 0, task);
+    } else {
+        // 插入到下一個卡片的前面
+        const nextCardId = parseInt(cards[newDomIndex + 1].id.replace('card-', ''));
+        const nextTaskIndex = tasks.findIndex(t => t.id === nextCardId);
+        tasks.splice(nextTaskIndex !== -1 ? nextTaskIndex : tasks.length, 0, task);
+    }
+  }
+
+  save();
+  renderAll();
   dragId = null;
 }
 
