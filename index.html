@@ -248,7 +248,7 @@ body {
   font-size: 11px;
   color: var(--text3);
   font-weight: 500;
-  writing-mode: vertical-lr; /* 移除了會導致顛倒的 transform 屬性 */
+  writing-mode: vertical-lr;
   text-align: center;
   letter-spacing: 0.2em;
 }
@@ -703,46 +703,48 @@ body {
 <div class="workload-section" id="workloadSection">
   </div>
 
-<div class="filter-bar" id="teamBar" style="display:none; border-bottom: 1px solid var(--border); background:var(--bg3);">
-  <span class="filter-label" style="color:var(--teal);">團隊管理</span>
-  <div class="filter-pills" id="teamList"></div>
-  <div class="search-wrap" style="display:flex; align-items:center;">
+<div class="filter-bar" id="teamBar" style="display:none; border-bottom: 1px solid var(--border); background:var(--bg3); align-items: flex-start;">
+  <span class="filter-label" style="color:var(--teal); margin-top: 8px;">團隊管理</span>
+  <div class="filter-pills" id="teamList" style="flex: 1; margin-top: 4px;"></div>
+  <div class="search-wrap" style="display:flex; align-items:center; flex-shrink: 0; margin-left: 10px;">
     <input class="search-input" style="padding-left:12px; width:120px;" type="text" id="newMemberInput" placeholder="輸入成員姓名...">
     <button class="btn-add" style="padding:4px 12px; font-size:12px; margin-left:8px;" onclick="addMember()">新增成員</button>
   </div>
 </div>
 
-<div class="filter-bar">
-  <span class="filter-label">狀態</span>
-  <div class="filter-pills" id="statusFilters">
-    <button class="pill active" data-group="status" data-val="all" onclick="setFilter('status','all',this)">全部</button>
-    <button class="pill" data-group="status" data-val="待處理" onclick="setFilter('status','待處理',this)">待處理</button>
-    <button class="pill" data-group="status" data-val="進行中" onclick="setFilter('status','進行中',this)">進行中</button>
-    <button class="pill" data-group="status" data-val="已完成" onclick="setFilter('status','已完成',this)">已完成</button>
+<div class="filter-bar" style="align-items: flex-start;">
+  <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; flex: 1;">
+    <span class="filter-label">狀態</span>
+    <div class="filter-pills" id="statusFilters">
+      <button class="pill active" data-group="status" data-val="all" onclick="setFilter('status','all',this)">全部</button>
+      <button class="pill" data-group="status" data-val="待處理" onclick="setFilter('status','待處理',this)">待處理</button>
+      <button class="pill" data-group="status" data-val="進行中" onclick="setFilter('status','進行中',this)">進行中</button>
+      <button class="pill" data-group="status" data-val="已完成" onclick="setFilter('status','已完成',this)">已完成</button>
+    </div>
+    <div class="filter-sep"></div>
+    <span class="filter-label">複雜度</span>
+    <div class="filter-pills">
+      <button class="pill active" data-group="complexity" data-val="all" onclick="setFilter('complexity','all',this)">全部</button>
+      <button class="pill" data-group="complexity" data-val="1" onclick="setFilter('complexity','1',this)">● 低</button>
+      <button class="pill" data-group="complexity" data-val="2" onclick="setFilter('complexity','2',this)">●● 中</button>
+      <button class="pill" data-group="complexity" data-val="3" onclick="setFilter('complexity','3',this)">●●● 高</button>
+    </div>
+    <div class="filter-sep"></div>
+    <span class="filter-label">負責人</span>
+    <div class="filter-pills" id="assigneeFilters">
+      <button class="pill active" data-group="assignee" data-val="all" onclick="setFilter('assignee','all',this)">全部</button>
+    </div>
+    
+    <div class="filter-sep"></div>
+    <span class="filter-label">排序</span>
+    <select class="search-input" id="sortSelect" style="width: auto; padding: 4px 10px; font-size: 12px;" onchange="renderAll()">
+      <option value="default">預設順序</option>
+      <option value="deadlineAsc">截止日 (近 &rarr; 遠)</option>
+      <option value="complexityDesc">複雜度 (高 &rarr; 低)</option>
+    </select>
   </div>
-  <div class="filter-sep"></div>
-  <span class="filter-label">複雜度</span>
-  <div class="filter-pills">
-    <button class="pill active" data-group="complexity" data-val="all" onclick="setFilter('complexity','all',this)">全部</button>
-    <button class="pill" data-group="complexity" data-val="1" onclick="setFilter('complexity','1',this)">● 低</button>
-    <button class="pill" data-group="complexity" data-val="2" onclick="setFilter('complexity','2',this)">●● 中</button>
-    <button class="pill" data-group="complexity" data-val="3" onclick="setFilter('complexity','3',this)">●●● 高</button>
-  </div>
-  <div class="filter-sep"></div>
-  <span class="filter-label">負責人</span>
-  <div class="filter-pills" id="assigneeFilters">
-    <button class="pill active" data-group="assignee" data-val="all" onclick="setFilter('assignee','all',this)">全部</button>
-  </div>
-  
-  <div class="filter-sep"></div>
-  <span class="filter-label">排序</span>
-  <select class="search-input" id="sortSelect" style="width: auto; padding: 4px 10px; font-size: 12px;" onchange="renderAll()">
-    <option value="default">預設順序</option>
-    <option value="deadlineAsc">截止日 (近 &rarr; 遠)</option>
-    <option value="complexityDesc">複雜度 (高 &rarr; 低)</option>
-  </select>
 
-  <div class="search-wrap">
+  <div class="search-wrap" style="flex-shrink: 0; margin-left: 10px; padding-top: 2px;">
     <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.868-3.834zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
     <input class="search-input" style="padding-left: 32px;" type="text" placeholder="搜尋任務..." id="searchInput" oninput="renderAll()">
   </div>
@@ -1026,7 +1028,7 @@ function updateWorkload() {
     if (m === '未指派' && loadMap[m].count === 0) return;
     
     const data = loadMap[m];
-    const baseline = Math.max(maxComplexity, 10); // 以10為基礎基準點防止比例失真
+    const baseline = Math.max(maxComplexity, 10); 
     const pct = Math.min((data.complexity / baseline) * 100, 100);
     
     html += `
@@ -1325,5 +1327,3 @@ updateAuthUI();
 </script>
 </body>
 </html>
-
-}
