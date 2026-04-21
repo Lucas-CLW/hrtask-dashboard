@@ -38,7 +38,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: auto; /* 修改此行：允許頁面產生水平捲軸 */
 }
 
 /* HEADER */
@@ -295,7 +295,9 @@ body {
 /* BOARD */
 .board-wrap {
   padding: 20px;
-  overflow-x: auto;
+  overflow-x: auto; /* 允許看板區域產生自己的水平捲軸 */
+  width: 100%;      /* 新增：強制寬度不超過螢幕 */
+  box-sizing: border-box; /* 新增：將 padding 納入寬度計算 */
 }
 .board {
   display: flex;
