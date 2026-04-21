@@ -19,6 +19,7 @@
   --red-bg: rgba(240,82,79,0.12);
   --amber: #f5a623;
   --amber-bg: rgba(245,166,35,0.12);
+  --yellow: #eab308;
   --blue: #4a9eff;
   --blue-bg: rgba(74,158,255,0.10);
   --teal: #2ec4a9;
@@ -383,7 +384,7 @@ body {
   background: var(--green-bg);
 }
 
-/* TASK CARD WARNING ANIMATION */
+/* TASK CARD */
 @keyframes pulseGlow {
   0%   { box-shadow: 0 0 0 0 rgba(245,166,35,0.5); border-color: var(--border); }
   50%  { box-shadow: 0 0 10px 1px rgba(245,166,35,0.3); border-color: var(--amber); }
@@ -498,6 +499,23 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* HASHTAGS */
+.task-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+.task-tag {
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
 .complexity-dots {
   display: flex;
   gap: 3px;
@@ -523,6 +541,7 @@ body {
 /* URGENCY */
 .urgent-red    { background: var(--red); }
 .urgent-amber  { background: var(--amber); }
+.urgent-yellow { background: var(--yellow); }
 .urgent-blue   { background: var(--blue); }
 .urgent-teal   { background: var(--teal); }
 .urgent-purple { background: var(--purple); }
@@ -808,22 +827,19 @@ body {
       <button class="pill" data-group="status" data-val="進行中" onclick="setFilter('status','進行中',this)">進行中</button>
       <button class="pill" data-group="status" data-val="已完成" onclick="setFilter('status','已完成',this)">已完成</button>
     </div>
-    <div class="filter-sep" style="display:none;"></div>
-    <span class="filter-label">複雜度</span>
-    <div class="filter-pills">
-      <button class="pill active" data-group="complexity" data-val="all" onclick="setFilter('complexity','all',this)">全部</button>
-      <button class="pill" data-group="complexity" data-val="1" onclick="setFilter('complexity','1',this)">● 低</button>
-      <button class="pill" data-group="complexity" data-val="2" onclick="setFilter('complexity','2',this)">●● 中</button>
-      <button class="pill" data-group="complexity" data-val="3" onclick="setFilter('complexity','3',this)">●●● 高</button>
-    </div>
-    <div class="filter-sep" style="display:none;"></div>
+    <div class="filter-sep"></div>
     <span class="filter-label">負責人</span>
     <div class="filter-pills" id="assigneeFilters">
       <button class="pill active" data-group="assignee" data-val="all" onclick="setFilter('assignee','all',this)">全部</button>
     </div>
+    <div class="filter-sep"></div>
+    <span class="filter-label">標籤</span>
+    <div class="filter-pills" id="tagFilters">
+      <button class="pill active" data-group="tag" data-val="all" onclick="setFilter('tag','all',this)">全部</button>
+    </div>
     
     <div class="filter-sep" style="display:none;"></div>
-    <div style="display:flex; align-items:center; gap:6px; white-space:nowrap;">
+    <div style="display:flex; align-items:center; gap:6px; white-space:nowrap; margin-left: auto;">
       <span class="filter-label">排序</span>
       <select class="search-input" id="sortSelect" style="width: auto; padding: 4px 10px; font-size: 12px;" onchange="renderAll()">
         <option value="default">手動排序</option>
@@ -835,7 +851,7 @@ body {
 
   <div class="search-wrap" style="flex-shrink: 0; margin-left: 10px; margin-top: 2px;">
     <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.868-3.834zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
-    <input class="search-input" style="padding-left: 32px;" type="text" placeholder="搜尋任務..." id="searchInput" oninput="renderAll()">
+    <input class="search-input" style="padding-left: 32px;" type="text" placeholder="搜尋任務或標籤..." id="searchInput" oninput="renderAll()">
   </div>
 </div>
 
@@ -870,7 +886,8 @@ body {
           <option value="urgent">🔴 緊急（今日）</option>
           <option value="week">🟠 本週內</option>
           <option value="month">🔵 本月底前</option>
-          <option value="longterm">🟢 長期</option>
+          <option value="longterm">🟢 中長期</option>
+          <option value="annual">🟡 年度例行</option>
           <option value="strategic">⚪ 策略性任務</option>
         </select>
       </div>
@@ -894,6 +911,10 @@ body {
       </div>
     </div>
     <div class="form-group">
+      <label class="form-label">標籤 (Hashtag，請用逗號分隔)</label>
+      <input class="form-control" id="fTags" type="text" placeholder="e.g. 招募, 薪酬, 績效">
+    </div>
+    <div class="form-group">
       <label class="form-label">備註 / 重點</label>
       <textarea class="form-control" id="fNotes" placeholder="輸入重點事項、備忘..."></textarea>
     </div>
@@ -908,39 +929,41 @@ body {
 
 <script>
 // ─── INIT & NORMALIZE DATA ───────────────────────────────────────────────────
+// 加入「年度例行(annual)」分類
 const COLUMNS = [
   { id: 'urgent',   label: '🔴 緊急', dot: 'urgent-red',    accent: '#f0524f' },
   { id: 'week',     label: '🟠 本週',  dot: 'urgent-amber',  accent: '#f5a623' },
   { id: 'month',    label: '🔵 本月',  dot: 'urgent-blue',   accent: '#4a9eff' },
   { id: 'longterm', label: '🟢 長期',  dot: 'urgent-teal',   accent: '#2ec4a9' },
+  { id: 'annual',   label: '🟡 例行',  dot: 'urgent-yellow', accent: '#eab308' },
   { id: 'strategic',label: '⚪ 策略',  dot: 'urgent-purple', accent: '#a78bfa' },
 ];
 
 const DEFAULT_TASKS = [
-  {id:1,  name:"蘇健銘晉升調薪案",         deadline:"2026-04-13", assignee:"淑圓",  complexity:2, status:"進行中", column:"urgent",    notes:"公告稿、晉升核決權限表、薪資調整表、簽呈、人事通告"},
-  {id:2,  name:"ISO 公告",                 deadline:"2026-04-10", assignee:"淑圓",  complexity:1, status:"已完成", column:"urgent",    notes:"公告稿，4/10下午送簽"},
-  {id:3,  name:"陳勳振晉升調薪案",         deadline:"2026-04-16", assignee:"淑圓",  complexity:2, status:"進行中", column:"week",      notes:"公告稿、晉升核決權限表、薪資調整表、簽呈、人事通告"},
-  {id:4,  name:"陳清泰、葉順興調薪案",     deadline:"2026-04-15", assignee:"淑圓",  complexity:2, status:"待處理", column:"week",      notes:"4/15前送簽 → 4/30薪酬委員會 → 5/11董事會"},
-  {id:5,  name:"蘇州永光董事長任命案",     deadline:"2026-04-15", assignee:"淑圓",  complexity:3, status:"待處理", column:"week",      notes:"4/15前送簽 → 4/30提名+薪酬委員會 → 5/11董事會，需評估重訊"},
-  {id:6,  name:"董事會議題",               deadline:"2026-04-30", assignee:"淑圓",  complexity:2, status:"待處理", column:"month",     notes:"陳清泰、葉順興、杜逸忠、陳勳振"},
-  {id:7,  name:"張麗敏派任總稽核調薪案",   deadline:"2026-06-01", assignee:"淑圓",  complexity:2, status:"待處理", column:"longterm",  notes:"薪資評估、簽呈、人事通告"},
-  {id:8,  name:"莊富凱副理晉升改敘",       deadline:"2026-06-01", assignee:"淑圓",  complexity:2, status:"待處理", column:"longterm",  notes:"薪資評估、簽呈、人事通告"},
-  {id:9,  name:"薪資預算計畫",             deadline:"Q3 2026",    assignee:"",      complexity:3, status:"待處理", column:"longterm",  notes:"經營績效、市場指標、CPI、景氣燈號、薪資中位數"},
-  {id:10, name:"理級工作報告",             deadline:"每年3月",    assignee:"Lucas", complexity:2, status:"待處理", column:"longterm",  notes:"人力指標、策略任務達成狀況"},
-  {id:11, name:"事業獎金 review",          deadline:"每年1-2月",  assignee:"",      complexity:3, status:"待處理", column:"longterm",  notes:"營運績效、費用、毛利，GM + 財務長 + HR"},
-  {id:12, name:"盡職（HRDD）調查",        deadline:"",           assignee:"",      complexity:3, status:"待處理", column:"strategic", notes:"ISO 37001、ISO 31000、供應商盡職調查"},
-  {id:13, name:"人資財會系統自動化介接",   deadline:"",           assignee:"淑圓",  complexity:3, status:"待處理", column:"strategic", notes:"資通與SAP自動串接"},
-  {id:14, name:"跨國子公司人資管理制度",   deadline:"",           assignee:"",      complexity:3, status:"待處理", column:"strategic", notes:"follow母公司，因地制宜（土耳其等）"},
-  {id:15, name:"董事高階績效指標",         deadline:"",           assignee:"",      complexity:3, status:"待處理", column:"strategic", notes:"與ESG績效串聯、高階獎金（稅前5%）"},
-  {id:16, name:"退休辦法",                 deadline:"",           assignee:"",      complexity:3, status:"待處理", column:"strategic", notes:"新舊制度身分別、定義與做法"},
-  {id:17, name:"總部提案制度",             deadline:"",           assignee:"",      complexity:2, status:"待處理", column:"strategic", notes:"優化工作流程、AI Agent／RPA導入"},
-  {id:18, name:"績效考核認定標準",         deadline:"",           assignee:"",      complexity:2, status:"待處理", column:"strategic", notes:"新制度、調任前後單位考核認定"},
-  {id:19, name:"人力配置合理化指標",       deadline:"",           assignee:"",      complexity:2, status:"待處理", column:"strategic", notes:"用人費用、人均產值"},
-  {id:20, name:"調派制度",                 deadline:"",           assignee:"景雲",  complexity:1, status:"待處理", column:"strategic", notes:"行政職輪調"},
-  {id:21, name:"彈性、遠端工作配套作法",   deadline:"",           assignee:"",      complexity:2, status:"待處理", column:"strategic", notes:"財務＆資訊部門配合"},
-  {id:22, name:"人資一部工作分配",         deadline:"",           assignee:"",      complexity:1, status:"待處理", column:"strategic", notes:"景雲、淑圓、佳怡"},
-  {id:23, name:"年度調薪",                 deadline:"",           assignee:"",      complexity:2, status:"待處理", column:"strategic", notes:""},
-  {id:24, name:"誠信保險評估",             deadline:"",           assignee:"",      complexity:1, status:"待處理", column:"strategic", notes:""},
+  {id:1,  name:"蘇健銘晉升調薪案",         deadline:"2026-04-13", assignee:"淑圓",  complexity:2, status:"進行中", column:"urgent",    tags:["薪酬", "晉升"], notes:"公告稿、晉升核決權限表、薪資調整表、簽呈、人事通告"},
+  {id:2,  name:"ISO 公告",                 deadline:"2026-04-10", assignee:"淑圓",  complexity:1, status:"已完成", column:"urgent",    tags:["辦法", "公告"], notes:"公告稿，4/10下午送簽"},
+  {id:3,  name:"陳勳振晉升調薪案",         deadline:"2026-04-16", assignee:"淑圓",  complexity:2, status:"進行中", column:"week",      tags:["薪酬", "晉升"], notes:"公告稿、晉升核決權限表、薪資調整表、簽呈、人事通告"},
+  {id:4,  name:"陳清泰、葉順興調薪案",     deadline:"2026-04-15", assignee:"淑圓",  complexity:2, status:"待處理", column:"week",      tags:["薪酬"], notes:"4/15前送簽 → 4/30薪酬委員會 → 5/11董事會"},
+  {id:5,  name:"蘇州永光董事長任命案",     deadline:"2026-04-15", assignee:"淑圓",  complexity:3, status:"待處理", column:"week",      tags:["任免"], notes:"4/15前送簽 → 4/30提名+薪酬委員會 → 5/11董事會，需評估重訊"},
+  {id:6,  name:"董事會議題",               deadline:"2026-04-30", assignee:"淑圓",  complexity:2, status:"待處理", column:"month",     tags:["董事會"], notes:"陳清泰、葉順興、杜逸忠、陳勳振"},
+  {id:7,  name:"張麗敏派任總稽核調薪案",   deadline:"2026-06-01", assignee:"淑圓",  complexity:2, status:"待處理", column:"longterm",  tags:["任免", "薪酬"], notes:"薪資評估、簽呈、人事通告"},
+  {id:8,  name:"莊富凱副理晉升改敘",       deadline:"2026-06-01", assignee:"淑圓",  complexity:2, status:"待處理", column:"longterm",  tags:["薪酬", "晉升"], notes:"薪資評估、簽呈、人事通告"},
+  {id:9,  name:"薪資預算計畫",             deadline:"Q3 2026",    assignee:"",      complexity:3, status:"待處理", column:"annual",    tags:["薪酬", "專案"], notes:"經營績效、市場指標、CPI、景氣燈號、薪資中位數"},
+  {id:10, name:"理級工作報告",             deadline:"每年3月",    assignee:"Lucas", complexity:2, status:"待處理", column:"annual",    tags:["績效"], notes:"人力指標、策略任務達成狀況"},
+  {id:11, name:"事業獎金 review",          deadline:"每年1-2月",  assignee:"",      complexity:3, status:"待處理", column:"annual",    tags:["薪酬", "績效"], notes:"營運績效、費用、毛利，GM + 財務長 + HR"},
+  {id:12, name:"盡職（HRDD）調查",        deadline:"",           assignee:"",      complexity:3, status:"待處理", column:"strategic", tags:["查核"], notes:"ISO 37001、ISO 31000、供應商盡職調查"},
+  {id:13, name:"人資財會系統自動化介接",   deadline:"",           assignee:"淑圓",  complexity:3, status:"待處理", column:"strategic", tags:["系統", "跨部門"], notes:"資通與SAP自動串接"},
+  {id:14, name:"跨國子公司人資管理制度",   deadline:"",           assignee:"",      complexity:3, status:"待處理", column:"strategic", tags:["辦法", "海外"], notes:"follow母公司，因地制宜（土耳其等）"},
+  {id:15, name:"董事高階績效指標",         deadline:"",           assignee:"",      complexity:3, status:"待處理", column:"strategic", tags:["績效", "ESG"], notes:"與ESG績效串聯、高階獎金（稅前5%）"},
+  {id:16, name:"退休辦法",                 deadline:"",           assignee:"",      complexity:3, status:"待處理", column:"strategic", tags:["辦法", "法令"], notes:"新舊制度身分別、定義與做法"},
+  {id:17, name:"總部提案制度",             deadline:"",           assignee:"",      complexity:2, status:"待處理", column:"strategic", tags:["專案", "AI"], notes:"優化工作流程、AI Agent／RPA導入"},
+  {id:18, name:"績效考核認定標準",         deadline:"",           assignee:"",      complexity:2, status:"待處理", column:"strategic", tags:["績效", "辦法"], notes:"新制度、調任前後單位考核認定"},
+  {id:19, name:"人力配置合理化指標",       deadline:"",           assignee:"",      complexity:2, status:"待處理", column:"strategic", tags:["分析", "招募"], notes:"用人費用、人均產值"},
+  {id:20, name:"調派制度",                 deadline:"",           assignee:"景雲",  complexity:1, status:"待處理", column:"strategic", tags:["辦法", "任免"], notes:"行政職輪調"},
+  {id:21, name:"彈性、遠端工作配套作法",   deadline:"",           assignee:"",      complexity:2, status:"待處理", column:"strategic", tags:["辦法", "跨部門"], notes:"財務＆資訊部門配合"},
+  {id:22, name:"人資一部工作分配",         deadline:"",           assignee:"",      complexity:1, status:"待處理", column:"strategic", tags:["組織"], notes:"景雲、淑圓、佳怡"},
+  {id:23, name:"年度調薪",                 deadline:"",           assignee:"",      complexity:2, status:"待處理", column:"annual",    tags:["薪酬"], notes:""},
+  {id:24, name:"誠信保險評估",             deadline:"",           assignee:"",      complexity:1, status:"待處理", column:"strategic", tags:["查核"], notes:""},
 ];
 
 let tasks = [];
@@ -951,10 +974,10 @@ try {
     tasks = parsed.map(t => ({
       ...t,
       name: t.name || t.title || '未命名任務',
-      notes: t.notes || ''
+      notes: t.notes || '',
+      tags: t.tags || []
     }));
   } else {
-    // 若為上次快取的 5 筆錯誤資料，強制恢復為預設 24 筆
     tasks = DEFAULT_TASKS;
     localStorage.setItem('hr_tasks', JSON.stringify(tasks));
   }
@@ -977,7 +1000,7 @@ try {
 
 let nextId = tasks.length > 0 ? Math.max(...tasks.map(t=>t.id)) + 1 : 1;
 let editingId = null;
-let filters = { status: 'all', complexity: 'all', assignee: 'all' };
+let filters = { status: 'all', complexity: 'all', assignee: 'all', tag: 'all' };
 let dragId = null;
 let isAuthorized = false;
 const ADMIN_PWD = "hr";
@@ -1064,16 +1087,38 @@ function setFilter(group, val, btn) {
   renderAll();
 }
 
+function updateTagFilters() {
+  const allTags = new Set();
+  tasks.forEach(t => {
+    if (t.tags && Array.isArray(t.tags)) {
+      t.tags.forEach(tag => allTags.add(tag));
+    }
+  });
+  
+  const tagsArray = [...allTags].sort();
+  const wrap = document.getElementById('tagFilters');
+  const cur = filters.tag;
+  
+  let html = `<button class="pill ${cur==='all'?'active':''}" data-group="tag" data-val="all" onclick="setFilter('tag','all',this)">全部</button>`;
+  tagsArray.forEach(tag => {
+    html += `<button class="pill ${cur===tag?'active':''}" data-group="tag" data-val="${tag}" onclick="setFilter('tag','${tag}',this)">#${tag}</button>`;
+  });
+  wrap.innerHTML = html;
+}
+
 function getFiltered() {
   const q = document.getElementById('searchInput').value.toLowerCase();
   return tasks.filter(t => {
     if (filters.status !== 'all' && t.status !== filters.status) return false;
     if (filters.complexity !== 'all' && String(t.complexity) !== filters.complexity) return false;
     if (filters.assignee !== 'all' && t.assignee !== filters.assignee) return false;
+    if (filters.tag !== 'all' && (!t.tags || !t.tags.includes(filters.tag))) return false;
+    
     if (q) {
       const nameMatch = (t.name || '').toLowerCase().includes(q);
       const notesMatch = (t.notes || '').toLowerCase().includes(q);
-      if (!nameMatch && !notesMatch) return false;
+      const tagsMatch = t.tags && t.tags.some(tag => tag.toLowerCase().includes(q));
+      if (!nameMatch && !notesMatch && !tagsMatch) return false;
     }
     return true;
   });
@@ -1264,6 +1309,8 @@ function renderCard(t) {
       </button>
     </div>` : '';
 
+  const tagsHtml = (t.tags && t.tags.length > 0) ? `<div class="task-tags">${t.tags.map(tag => `<span class="task-tag">#${tag}</span>`).join('')}</div>` : '';
+
   return `
   <div class="task-card ${dragClass} ${cardStatusClass}" draggable="${isAuthorized ? 'true' : 'false'}"
        ondragstart="${isAuthorized ? `dragStart(event,${t.id})` : ''}"
@@ -1280,6 +1327,7 @@ function renderCard(t) {
       ${t.assignee ? `<span class="task-assignee"><span class="avatar" style="background:${avc}22;color:${avc}">${avTxt}</span>${t.assignee}</span>` : ''}
       <div class="complexity-dots">${dots}</div>
     </div>
+    ${tagsHtml}
     ${t.notes ? `<div class="task-notes">${t.notes}</div>` : ''}
   </div>`;
 }
@@ -1290,6 +1338,7 @@ function renderAll() {
   updateStats();
   updateWorkload();
   updateAssigneeFilters();
+  updateTagFilters();
   
   const filtered = getFiltered();
   const sortedFiltered = getSorted(filtered); 
@@ -1319,7 +1368,6 @@ function renderAll() {
       </div>
     `;
 
-    // 恆常顯示已收納區塊，避免使用者以為功能消失
     html += `
       <div class="completed-toggle" onclick="toggleCompleted('${col.id}')">
         <span>已收納 (${completedTasks.length})</span>
@@ -1462,6 +1510,7 @@ function openModal(id) {
     document.getElementById('fColumn').value     = t.column || 'strategic';
     document.getElementById('fComplexity').value = t.complexity || 2;
     document.getElementById('fStatus').value     = t.status || '待處理';
+    document.getElementById('fTags').value       = (t.tags && Array.isArray(t.tags)) ? t.tags.join(', ') : '';
     document.getElementById('fNotes').value      = t.notes || '';
   } else {
     document.getElementById('fName').value       = '';
@@ -1470,6 +1519,7 @@ function openModal(id) {
     document.getElementById('fColumn').value     = 'strategic';
     document.getElementById('fComplexity').value = '2';
     document.getElementById('fStatus').value     = '待處理';
+    document.getElementById('fTags').value       = '';
     document.getElementById('fNotes').value      = '';
   }
   document.getElementById('modalBg').classList.add('open');
@@ -1484,6 +1534,11 @@ function closeModal() {
 function saveTask() {
   const name = document.getElementById('fName').value.trim();
   if (!name) { alert('請輸入任務名稱'); return; }
+  
+  // 處理標籤邏輯
+  const rawTags = document.getElementById('fTags').value;
+  const tags = rawTags.split(',').map(s => s.trim()).filter(s => s !== '');
+  
   const data = {
     name,
     deadline:   document.getElementById('fDeadline').value.trim(),
@@ -1491,6 +1546,7 @@ function saveTask() {
     column:     document.getElementById('fColumn').value,
     complexity: parseInt(document.getElementById('fComplexity').value),
     status:     document.getElementById('fStatus').value,
+    tags:       tags,
     notes:      document.getElementById('fNotes').value.trim(),
   };
   if (editingId) {
