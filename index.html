@@ -38,7 +38,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  overflow-x: auto; /* 修改此行：允許頁面產生水平捲軸 */
+  overflow-x: auto; /* 修正：允許頁面產生水平捲軸 */
 }
 
 /* HEADER */
@@ -141,7 +141,6 @@ body {
 .pill.active { background: var(--blue-bg); border-color: var(--blue); color: var(--blue); }
 .filter-sep { width: 1px; height: 20px; background: var(--border); }
 .search-wrap {
-  margin-left: auto;
   position: relative;
 }
 .search-wrap svg {
@@ -296,9 +295,25 @@ body {
 .board-wrap {
   padding: 20px;
   overflow-x: auto; /* 允許看板區域產生自己的水平捲軸 */
-  width: 100%;      /* 新增：強制寬度不超過螢幕 */
-  box-sizing: border-box; /* 新增：將 padding 納入寬度計算 */
+  width: 100vw;      /* 強制寬度為螢幕寬度 */
+  box-sizing: border-box;
 }
+
+/* 自訂水平捲軸樣式 */
+.board-wrap::-webkit-scrollbar {
+  height: 10px;
+}
+.board-wrap::-webkit-scrollbar-track {
+  background: var(--bg2);
+}
+.board-wrap::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 5px;
+}
+.board-wrap::-webkit-scrollbar-thumb:hover {
+  background: var(--text3);
+}
+
 .board {
   display: flex;
   gap: 16px;
@@ -809,7 +824,7 @@ body {
 </div>
 
 <div class="workload-section" id="workloadSection">
-  </div>
+</div>
 
 <div class="filter-bar" id="teamBar" style="display:none; border-bottom: 1px solid var(--border); background:var(--bg3); align-items: flex-start;">
   <span class="filter-label" style="color:var(--teal); margin-top: 8px;">團隊管理</span>
@@ -820,28 +835,38 @@ body {
   </div>
 </div>
 
-<div class="filter-bar" style="align-items: flex-start;">
-  <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; flex: 1;">
-    <span class="filter-label">狀態</span>
-    <div class="filter-pills" id="statusFilters">
-      <button class="pill active" data-group="status" data-val="all" onclick="setFilter('status','all',this)">全部</button>
-      <button class="pill" data-group="status" data-val="待處理" onclick="setFilter('status','待處理',this)">待處理</button>
-      <button class="pill" data-group="status" data-val="進行中" onclick="setFilter('status','進行中',this)">進行中</button>
-      <button class="pill" data-group="status" data-val="已完成" onclick="setFilter('status','已完成',this)">已完成</button>
-    </div>
-    <div class="filter-sep"></div>
-    <span class="filter-label">負責人</span>
-    <div class="filter-pills" id="assigneeFilters">
-      <button class="pill active" data-group="assignee" data-val="all" onclick="setFilter('assignee','all',this)">全部</button>
-    </div>
-    <div class="filter-sep"></div>
-    <span class="filter-label">標籤</span>
-    <div class="filter-pills" id="tagFilters">
-      <button class="pill active" data-group="tag" data-val="all" onclick="setFilter('tag','all',this)">全部</button>
+<div class="filter-bar" style="display: flex; justify-content: space-between; align-items: flex-start;">
+  
+  <div style="display: flex; flex-direction: column; gap: 12px; flex: 1;">
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+      <span class="filter-label">狀態</span>
+      <div class="filter-pills" id="statusFilters">
+        <button class="pill active" data-group="status" data-val="all" onclick="setFilter('status','all',this)">全部</button>
+        <button class="pill" data-group="status" data-val="待處理" onclick="setFilter('status','待處理',this)">待處理</button>
+        <button class="pill" data-group="status" data-val="進行中" onclick="setFilter('status','進行中',this)">進行中</button>
+        <button class="pill" data-group="status" data-val="已完成" onclick="setFilter('status','已完成',this)">已完成</button>
+      </div>
+      <div class="filter-sep"></div>
+      <span class="filter-label">負責人</span>
+      <div class="filter-pills" id="assigneeFilters">
+        <button class="pill active" data-group="assignee" data-val="all" onclick="setFilter('assignee','all',this)">全部</button>
+      </div>
     </div>
     
-    <div class="filter-sep" style="display:none;"></div>
-    <div style="display:flex; align-items:center; gap:6px; white-space:nowrap; margin-left: auto;">
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+      <span class="filter-label">標籤</span>
+      <div class="filter-pills" id="tagFilters">
+        <button class="pill active" data-group="tag" data-val="all" onclick="setFilter('tag','all',this)">全部</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px; align-items: flex-end; flex-shrink: 0; margin-left: 20px;">
+    <div class="search-wrap" style="margin-left: 0;">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.868-3.834zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+      <input class="search-input" style="padding-left: 32px;" type="text" placeholder="搜尋任務或標籤..." id="searchInput" oninput="renderAll()">
+    </div>
+    <div style="display:flex; align-items:center; gap:6px; white-space:nowrap;">
       <span class="filter-label">排序</span>
       <select class="search-input" id="sortSelect" style="width: auto; padding: 4px 10px; font-size: 12px;" onchange="renderAll()">
         <option value="default">手動排序</option>
@@ -851,10 +876,6 @@ body {
     </div>
   </div>
 
-  <div class="search-wrap" style="flex-shrink: 0; margin-left: 10px; margin-top: 2px;">
-    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.868-3.834zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
-    <input class="search-input" style="padding-left: 32px;" type="text" placeholder="搜尋任務或標籤..." id="searchInput" oninput="renderAll()">
-  </div>
 </div>
 
 <div class="board-wrap">
@@ -888,7 +909,7 @@ body {
           <option value="urgent">🔴 緊急（今日）</option>
           <option value="week">🟠 本週內</option>
           <option value="month">🔵 本月底前</option>
-          <option value="longterm">🟢 中長期</option>
+          <option value="longterm">🟢 長期</option>
           <option value="annual">🟡 年度例行</option>
           <option value="strategic">⚪ 策略性任務</option>
         </select>
@@ -931,7 +952,6 @@ body {
 
 <script>
 // ─── INIT & NORMALIZE DATA ───────────────────────────────────────────────────
-// 加入「年度例行(annual)」分類
 const COLUMNS = [
   { id: 'urgent',   label: '🔴 緊急', dot: 'urgent-red',    accent: '#f0524f' },
   { id: 'week',     label: '🟠 本週',  dot: 'urgent-amber',  accent: '#f5a623' },
