@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>人資任務管理面板</title>
+<title>人資專案管理面板</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <style>
 :root {
   --bg: #0f1117;
@@ -418,9 +418,9 @@ body {
 const DEFAULT_COLUMNS = [
   { id: 'urgent',   label: '🔴 緊急', dot: 'urgent-red',    accent: '#f0524f' },
   { id: 'week',     label: '🟠 本週',  dot: 'urgent-amber',  accent: '#f5a623' },
-  { id: 'month',    label: '🔵 近期',  dot: 'urgent-blue',   accent: '#4a9eff' }, // 由"本月"更為"近期"
+  { id: 'month',    label: '🔵 近期',  dot: 'urgent-blue',   accent: '#4a9eff' }, 
   { id: 'longterm', label: '🟢 長期',  dot: 'urgent-teal',   accent: '#2ec4a9' },
-  { id: 'annual',   label: '🟡 循環',  dot: 'urgent-yellow', accent: '#eab308' }, // 由"例行"更為"循環"
+  { id: 'annual',   label: '🟡 循環',  dot: 'urgent-yellow', accent: '#eab308' }, 
   { id: 'strategic',label: '⚪ 策略',  dot: 'urgent-purple', accent: '#a78bfa' },
 ];
 
@@ -429,7 +429,6 @@ try {
   const rawCols = localStorage.getItem('hr_columns');
   if (rawCols) {
       let parsedCols = JSON.parse(rawCols);
-      // 遷移腳本：偵測並覆寫舊有快取標籤
       parsedCols.forEach(c => {
           if (c.id === 'month' && c.label.includes('本月')) c.label = '🔵 近期';
           if (c.id === 'annual' && c.label.includes('例行')) c.label = '🟡 循環';
@@ -552,7 +551,7 @@ function updateAuthUI() {
   renderAll();
 }
 
-// ─── 匯出 EXCEL (包含面板排序與重整編號) ────────────────────────────────────────
+// ─── 匯出 EXCEL (加入自動排版與延宕標記樣式) ────────────────────────────────────────
 function exportToExcel() {
   if (!isAuthorized) return;
   
@@ -563,7 +562,6 @@ function exportToExcel() {
     colOrder[c.id] = index;
   });
   
-  // 依照面板順序進行排序，若為同一面板再依據截止時間微調
   const sortedTasks = [...tasks].sort((a, b) => {
     const orderA = colOrder[a.column] !== undefined ? colOrder[a.column] : 99;
     const orderB = colOrder[b.column] !== undefined ? colOrder[b.column] : 99;
@@ -571,7 +569,6 @@ function exportToExcel() {
     return (a.deadline || '') > (b.deadline || '') ? 1 : -1;
   });
   
-  // 利用 map 產生連續的索引做為任務編號
   const exportData = sortedTasks.map((t, index) => ({
     "任務編號": index + 1, 
     "任務名稱": t.name,
@@ -585,6 +582,79 @@ function exportToExcel() {
   }));
   
   const ws = XLSX.utils.json_to_sheet(exportData);
+  
+  // 自動欄位寬度設定 (wpx)
+  ws['!cols'] = [
+    { wpx: 80 },  // 任務編號
+    { wpx: 200 }, // 任務名稱
+    { wpx: 80 },  // 負責人
+    { wpx: 80 },  // 任務狀態
+    { wpx: 100 }, // 截止期限
+    { wpx: 100 }, // 所屬分類
+    { wpx: 100 }, // 複雜度
+    { wpx: 150 }, // 分類標籤
+    { wpx: 300 }  // 備註說明
+  ];
+
+  // 標題列預設樣式
+  const headerStyle = {
+    font: { bold: true, color: { rgb: "FFFFFF" } },
+    fill: { fgColor: { rgb: "4F81BD" } },
+    alignment: { horizontal: "center", vertical: "center" }
+  };
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const range = XLSX.utils.decode_range(ws['!ref']);
+  
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    let isOverdue = false;
+
+    // 判斷該列表料是否延宕
+    if (R > 0) {
+      const statusCell = ws[XLSX.utils.encode_cell({ r: R, c: 3 })];   // 任務狀態 (第4欄)
+      const deadlineCell = ws[XLSX.utils.encode_cell({ r: R, c: 4 })]; // 截止期限 (第5欄)
+      
+      if (deadlineCell && deadlineCell.v && deadlineCell.v !== '無' && !String(deadlineCell.v).includes('每年') && statusCell && statusCell.v !== '已完成') {
+        const taskDate = new Date(deadlineCell.v);
+        if (!isNaN(taskDate.getTime())) {
+          taskDate.setHours(0,0,0,0);
+          if (Math.round((taskDate - today) / 86400000) < 0) {
+            isOverdue = true;
+          }
+        }
+      }
+    }
+
+    // 將樣式套用於該列的每一個儲存格
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+      if (!ws[cellAddress]) continue;
+
+      if (R === 0) {
+        ws[cellAddress].s = headerStyle;
+      } else {
+        const cellStyle = {
+          alignment: { vertical: "center", wrapText: true },
+          border: {
+            top: { style: "thin", color: { rgb: "DDDDDD" } },
+            bottom: { style: "thin", color: { rgb: "DDDDDD" } },
+            left: { style: "thin", color: { rgb: "DDDDDD" } },
+            right: { style: "thin", color: { rgb: "DDDDDD" } }
+          }
+        };
+
+        if (isOverdue) {
+          cellStyle.fill = { fgColor: { rgb: "F2DCDB" } }; // 淺紅底色
+          cellStyle.font = { color: { rgb: "9C0006" } };   // 深紅文字
+        }
+
+        ws[cellAddress].s = cellStyle;
+      }
+    }
+  }
+
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "專案任務清單");
   
@@ -774,7 +844,7 @@ function updateWorkload() {
 // ─── CARD ────────────────────────────────────────────────────────────────────
 function getDeadlineColor(dl) {
   if (!dl) return 'deadline-gray'; 
-  if (dl.includes('每年')) return 'deadline-teal'; // 循環任務給予專屬顏色顯示
+  if (dl.includes('每年')) return 'deadline-teal'; 
   
   const d = new Date(dl); 
   if (isNaN(d.getTime())) return 'deadline-gray';
