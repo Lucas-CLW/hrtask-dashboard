@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>人資專案管理面板</title>
+<title>人資任務管理面板</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -38,7 +38,7 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  overflow-x: hidden; /* 防止整體頁面產生多餘水平滾動軸 */
+  overflow-x: hidden;
 }
 
 /* HEADER */
@@ -156,12 +156,18 @@ body {
 
 /* STATS */
 .stats-row {
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px;
-  background: var(--border); border-bottom: 1px solid var(--border);
+  display: grid; 
+  grid-template-columns: repeat(5, 1fr); 
+  gap: 1px;
+  background: var(--border); 
+  border-bottom: 1px solid var(--border);
 }
 .stat-card {
-  background: var(--bg2); padding: 16px 24px; display: flex;
-  flex-direction: column; gap: 4px;
+  background: var(--bg2); 
+  padding: 16px 24px; 
+  display: flex;
+  flex-direction: column; 
+  gap: 4px;
 }
 .stat-num { font-size: 28px; font-weight: 700; line-height: 1; font-family: 'DM Mono', monospace; }
 .stat-label { font-size: 11px; color: var(--text3); font-weight: 400; text-transform: uppercase; letter-spacing: .05em; }
@@ -169,13 +175,28 @@ body {
 .stat-fill { height: 100%; border-radius: 2px; transition: width .5s ease; }
 
 /* PROGRESS */
-.progress-section { padding: 12px 2rem; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.progress-section { 
+  padding: 12px 2rem; 
+  background: var(--bg2); 
+  border-bottom: 1px solid var(--border); 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+}
 .progress-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--teal)); border-radius: 3px; transition: width .5s ease; }
 .progress-text { font-size: 12px; color: var(--text3); white-space: nowrap; font-family: 'DM Mono', monospace; }
 
 /* WORKLOAD */
-.workload-section { padding: 15px 2rem; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; overflow-x: auto; }
+.workload-section { 
+  padding: 15px 2rem; 
+  background: var(--bg2); 
+  border-bottom: 1px solid var(--border); 
+  display: flex; 
+  align-items: center; 
+  gap: 15px; 
+  overflow-x: auto; 
+}
 .workload-label { font-size: 11px; color: var(--text3); font-weight: 500; writing-mode: vertical-lr; text-align: center; letter-spacing: 0.2em; }
 .workload-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; min-width: 150px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
 .wl-head { display: flex; justify-content: space-between; align-items: center; }
@@ -185,31 +206,30 @@ body {
 .wl-bar-fill { height: 100%; background: var(--purple); border-radius: 2px; transition: width 0.5s ease; }
 .wl-details { display: flex; justify-content: space-between; font-size: 11px; color: var(--text2); }
 
-/* BOARD WRAP - 修正滾動軸無法拖曳問題 */
+/* BOARD WRAP */
 .board-wrap {
   padding: 20px;
   overflow-x: auto;
-  width: 100%; /* 使用 100% 替代 100vw，避免計算垂直滾動軸導致的溢出 */
+  width: 100%; 
   box-sizing: border-box;
-  padding-bottom: 25px; /* 提供底部實體空間讓自訂滾動軸可以被點擊 */
+  padding-bottom: 25px;
 }
 
-/* 自訂水平捲軸樣式 */
 .board-wrap::-webkit-scrollbar { height: 10px; }
 .board-wrap::-webkit-scrollbar-track { background: var(--bg2); border-radius: 5px; }
 .board-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 5px; }
 .board-wrap::-webkit-scrollbar-thumb:hover { background: var(--text3); }
 
+/* BOARD & COLUMN - 修正自適應縮放 */
 .board {
   display: flex;
-  gap: 16px;
-  min-width: fit-content;
+  gap: 12px; /* 微調面板間距 */
+  width: 100%; /* 確保佈滿可用寬度 */
 }
 
-/* COLUMN 面板 */
 .column {
-  width: 280px;
-  flex-shrink: 0;
+  flex: 1; /* 允許均分空間並等比縮放 */
+  min-width: 150px; /* 縮放極限值 */
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -280,13 +300,11 @@ body {
 .cdot.on { background: var(--text2); }
 .task-deadline { font-family: 'DM Mono', monospace; font-size: 11px; }
 
-/* STATUS COLORS */
+/* STATUS COLORS & URGENCY */
 .status-pending { background: var(--gray-bg); color: var(--text2); }
 .status-doing   { background: var(--blue-bg); color: var(--blue); }
 .status-done    { background: var(--green-bg); color: var(--green); }
 .status-overdue { background: var(--red-bg); color: var(--red); }
-
-/* URGENCY */
 .urgent-red    { background: var(--red); }
 .urgent-amber  { background: var(--amber); }
 .urgent-yellow { background: var(--yellow); }
@@ -299,7 +317,7 @@ body {
 .deadline-teal  { color: var(--teal); }
 .deadline-gray  { color: var(--text3); }
 
-/* MODAL & TOAST 省略大部分樣式以簡化空間，保留原有設定 */
+/* MODAL & TOAST */
 .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
 .modal-bg.open { display: flex; }
 .modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: 14px; width: 100%; max-width: 500px; padding: 28px; animation: slideUp .2s ease; }
@@ -429,11 +447,23 @@ body {
 
 <div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-title"><span id="modalTitle">新增任務</span><button class="modal-close" onclick="closeModal()">×</button></div>
-    <div class="form-group"><label class="form-label">任務名稱 *</label><input class="form-control" id="fName" type="text" placeholder="輸入任務名稱"></div>
+    <div class="modal-title">
+      <span id="modalTitle">新增任務</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">任務名稱 *</label>
+      <input class="form-control" id="fName" type="text" placeholder="輸入任務名稱">
+    </div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">截止時間</label><input class="form-control" id="fDeadline" type="date"></div>
-      <div class="form-group"><label class="form-label">負責人</label><select class="form-control" id="fAssignee"></select></div>
+      <div class="form-group">
+        <label class="form-label">截止時間</label>
+        <input class="form-control" id="fDeadline" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">負責人</label>
+        <select class="form-control" id="fAssignee"></select>
+      </div>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -443,15 +473,35 @@ body {
       </div>
       <div class="form-group">
         <label class="form-label">複雜度</label>
-        <select class="form-control" id="fComplexity"><option value="1">● 低</option><option value="2">●● 中</option><option value="3">●●● 高</option></select>
+        <select class="form-control" id="fComplexity">
+          <option value="1">● 低</option>
+          <option value="2">●● 中</option>
+          <option value="3">●●● 高</option>
+        </select>
       </div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">狀態</label><select class="form-control" id="fStatus"><option value="待處理">待處理</option><option value="進行中">進行中</option><option value="已完成">已完成</option></select></div>
+      <div class="form-group">
+        <label class="form-label">狀態</label>
+        <select class="form-control" id="fStatus">
+          <option value="待處理">待處理</option>
+          <option value="進行中">進行中</option>
+          <option value="已完成">已完成</option>
+        </select>
+      </div>
     </div>
-    <div class="form-group"><label class="form-label">標籤 (Hashtag，請用逗號分隔)</label><input class="form-control" id="fTags" type="text" placeholder="e.g. 招募, 薪酬, 績效"></div>
-    <div class="form-group"><label class="form-label">備註 / 重點</label><textarea class="form-control" id="fNotes" placeholder="輸入重點事項、備忘..."></textarea></div>
-    <div class="form-actions"><button class="btn-cancel" onclick="closeModal()">取消</button><button class="btn-save" onclick="saveTask()">儲存</button></div>
+    <div class="form-group">
+      <label class="form-label">標籤 (Hashtag，請用逗號分隔)</label>
+      <input class="form-control" id="fTags" type="text" placeholder="e.g. 招募, 薪酬, 績效">
+    </div>
+    <div class="form-group">
+      <label class="form-label">備註 / 重點</label>
+      <textarea class="form-control" id="fNotes" placeholder="輸入重點事項、備忘..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn-save" onclick="saveTask()">儲存</button>
+    </div>
   </div>
 </div>
 
@@ -508,26 +558,37 @@ try {
   const rawTasks = localStorage.getItem('hr_tasks');
   const parsed = JSON.parse(rawTasks);
   if (Array.isArray(parsed) && parsed.length > 5) {
-    tasks = parsed.map(t => ({ ...t, name: t.name || t.title || '未命名任務', notes: t.notes || '', tags: t.tags || [] }));
+    tasks = parsed.map(t => ({ 
+        ...t, 
+        name: t.name || t.title || '未命名任務', 
+        notes: t.notes || '', 
+        tags: t.tags || [] 
+    }));
   } else {
     tasks = DEFAULT_TASKS;
     localStorage.setItem('hr_tasks', JSON.stringify(tasks));
   }
-} catch(e) { tasks = DEFAULT_TASKS; }
+} catch(e) { 
+  tasks = DEFAULT_TASKS; 
+}
 
 let teamMembers = [];
 try {
   const rawMembers = localStorage.getItem('hr_team_members');
   const parsedMembers = JSON.parse(rawMembers);
-  if (Array.isArray(parsedMembers)) teamMembers = parsedMembers;
-  else teamMembers = ["淑圓", "Lucas", "景雲", "佳怡"];
-} catch(e) { teamMembers = ["淑圓", "Lucas", "景雲", "佳怡"]; }
+  if (Array.isArray(parsedMembers)) {
+      teamMembers = parsedMembers;
+  } else {
+      teamMembers = ["淑圓", "Lucas", "景雲", "佳怡"];
+  }
+} catch(e) { 
+  teamMembers = ["淑圓", "Lucas", "景雲", "佳怡"]; 
+}
 
 let nextId = tasks.length > 0 ? Math.max(...tasks.map(t=>t.id)) + 1 : 1;
 let editingId = null;
 let filters = { status: 'all', complexity: 'all', assignee: 'all', tag: 'all' };
 
-// 拖曳狀態變數分離：防呆卡片拖曳與面板拖曳衝突
 let dragId = null; 
 let dragColId = null; 
 let isAuthorized = false;
@@ -542,7 +603,9 @@ function save() {
 function toggleAuth() {
   if (!isAuthorized) {
     const pwd = prompt("請輸入管理員密碼：");
-    if (pwd === ADMIN_PWD) isAuthorized = true;
+    if (pwd === ADMIN_PWD) {
+        isAuthorized = true;
+    }
   } else {
     isAuthorized = false;
   }
@@ -556,19 +619,29 @@ function updateAuthUI() {
   
   if (isAuthorized) {
     authBtn.innerHTML = '🔓 管理模式';
-    authBtn.style.background = 'var(--teal)'; authBtn.style.borderColor = 'var(--teal)';
-    addBtn.style.display = 'flex'; teamBar.style.display = 'flex';
+    authBtn.style.background = 'var(--teal)'; 
+    authBtn.style.borderColor = 'var(--teal)';
+    addBtn.style.display = 'flex'; 
+    teamBar.style.display = 'flex';
   } else {
     authBtn.innerHTML = '🔒 唯讀模式';
-    authBtn.style.background = 'var(--bg3)'; authBtn.style.borderColor = 'var(--border)';
-    addBtn.style.display = 'none'; teamBar.style.display = 'none';
+    authBtn.style.background = 'var(--bg3)'; 
+    authBtn.style.borderColor = 'var(--border)';
+    addBtn.style.display = 'none'; 
+    teamBar.style.display = 'none';
   }
   renderAll();
 }
 
 function renderTeam() {
   const list = document.getElementById('teamList');
-  list.innerHTML = teamMembers.map(m => `<span class="pill" style="border-color:var(--teal); color:var(--text);">${m} <span style="cursor:pointer; opacity:.5; margin-left:6px; font-weight:bold;" onclick="removeMember('${m}')" title="刪除">×</span></span>`).join('');
+  list.innerHTML = teamMembers.map(m => `
+      <span class="pill" style="border-color:var(--teal); color:var(--text);">
+          ${m} 
+          <span style="cursor:pointer; opacity:.5; margin-left:6px; font-weight:bold;" onclick="removeMember('${m}')" title="刪除">×</span>
+      </span>
+  `).join('');
+  
   const sel = document.getElementById('fAssignee');
   if (sel) {
       const curVal = sel.value;
@@ -578,30 +651,61 @@ function renderTeam() {
 }
 
 function addMember() {
-  const input = document.getElementById('newMemberInput'); const name = input.value.trim();
-  if (name && !teamMembers.includes(name)) { teamMembers.push(name); localStorage.setItem('hr_team_members', JSON.stringify(teamMembers)); input.value = ''; renderAll(); }
+  const input = document.getElementById('newMemberInput'); 
+  const name = input.value.trim();
+  if (name && !teamMembers.includes(name)) { 
+      teamMembers.push(name); 
+      localStorage.setItem('hr_team_members', JSON.stringify(teamMembers)); 
+      input.value = ''; 
+      renderAll(); 
+  }
 }
+
 function removeMember(name) {
-  if (confirm(`確定從團隊中移除「${name}」？\n(注意：不會刪除已指派給他的舊任務)`)) { teamMembers = teamMembers.filter(m => m !== name); localStorage.setItem('hr_team_members', JSON.stringify(teamMembers)); renderAll(); }
+  if (confirm(`確定從團隊中移除「${name}」？\n(注意：不會刪除已指派給他的舊任務)`)) { 
+      teamMembers = teamMembers.filter(m => m !== name); 
+      localStorage.setItem('hr_team_members', JSON.stringify(teamMembers)); 
+      renderAll(); 
+  }
 }
 
 // ─── FILTERS ─────────────────────────────────────────────────────────────────
-function setFilter(group, val, btn) { filters[group] = val; document.querySelectorAll(`[data-group="${group}"]`).forEach(b => b.classList.remove('active')); btn.classList.add('active'); renderAll(); }
+function setFilter(group, val, btn) { 
+    filters[group] = val; 
+    document.querySelectorAll(`[data-group="${group}"]`).forEach(b => b.classList.remove('active')); 
+    btn.classList.add('active'); 
+    renderAll(); 
+}
+
 function updateTagFilters() {
   const allTags = new Set();
-  tasks.forEach(t => { if (t.tags && Array.isArray(t.tags)) t.tags.forEach(tag => allTags.add(tag)); });
+  tasks.forEach(t => { 
+      if (t.tags && Array.isArray(t.tags)) {
+          t.tags.forEach(tag => allTags.add(tag)); 
+      }
+  });
   const tagsArray = [...allTags].sort();
-  const wrap = document.getElementById('tagFilters'); const cur = filters.tag;
+  const wrap = document.getElementById('tagFilters'); 
+  const cur = filters.tag;
+  
   let html = `<button class="pill ${cur==='all'?'active':''}" data-group="tag" data-val="all" onclick="setFilter('tag','all',this)">全部</button>`;
-  tagsArray.forEach(tag => { html += `<button class="pill ${cur===tag?'active':''}" data-group="tag" data-val="${tag}" onclick="setFilter('tag','${tag}',this)">#${tag}</button>`; });
+  tagsArray.forEach(tag => { 
+      html += `<button class="pill ${cur===tag?'active':''}" data-group="tag" data-val="${tag}" onclick="setFilter('tag','${tag}',this)">#${tag}</button>`; 
+  });
   wrap.innerHTML = html;
 }
+
 function updateAssigneeFilters() {
   const assignees = [...new Set([...teamMembers, ...tasks.map(t=>t.assignee).filter(Boolean)])].sort();
-  const wrap = document.getElementById('assigneeFilters'); const cur = filters.assignee;
+  const wrap = document.getElementById('assigneeFilters'); 
+  const cur = filters.assignee;
+  
   wrap.innerHTML = `<button class="pill ${cur==='all'?'active':''}" data-group="assignee" data-val="all" onclick="setFilter('assignee','all',this)">全部</button>`;
-  assignees.forEach(a => { wrap.innerHTML += `<button class="pill ${cur===a?'active':''}" data-group="assignee" data-val="${a}" onclick="setFilter('assignee','${a}',this)">${a}</button>`; });
+  assignees.forEach(a => { 
+      wrap.innerHTML += `<button class="pill ${cur===a?'active':''}" data-group="assignee" data-val="${a}" onclick="setFilter('assignee','${a}',this)">${a}</button>`; 
+  });
 }
+
 function getFiltered() {
   const q = document.getElementById('searchInput').value.toLowerCase();
   return tasks.filter(t => {
@@ -618,83 +722,188 @@ function getFiltered() {
     return true;
   });
 }
+
 function getSorted(tasksArray) {
   const sortType = document.getElementById('sortSelect') ? document.getElementById('sortSelect').value : 'default';
   let sorted = [...tasksArray];
-  if (sortType === 'deadlineAsc') sorted.sort((a, b) => { if (!a.deadline) return 1; if (!b.deadline) return -1; return new Date(a.deadline) - new Date(b.deadline); });
-  else if (sortType === 'complexityDesc') sorted.sort((a, b) => (b.complexity || 0) - (a.complexity || 0));
+  if (sortType === 'deadlineAsc') {
+      sorted.sort((a, b) => { 
+          if (!a.deadline) return 1; 
+          if (!b.deadline) return -1; 
+          return new Date(a.deadline) - new Date(b.deadline); 
+      });
+  } else if (sortType === 'complexityDesc') {
+      sorted.sort((a, b) => (b.complexity || 0) - (a.complexity || 0));
+  }
   return sorted;
 }
 
 // ─── STATS & WORKLOAD ────────────────────────────────────────────────────────
 function updateStats() {
-  const total = tasks.length; const done = tasks.filter(t=>t.status==='已完成').length; const doing = tasks.filter(t=>t.status==='進行中').length; const pending = tasks.filter(t=>t.status==='待處理').length;
-  let overdue = 0; const today = new Date(); today.setHours(0,0,0,0);
+  const total = tasks.length; 
+  const done = tasks.filter(t=>t.status==='已完成').length; 
+  const doing = tasks.filter(t=>t.status==='進行中').length; 
+  const pending = tasks.filter(t=>t.status==='待處理').length;
+  let overdue = 0; 
+  const today = new Date(); 
+  today.setHours(0,0,0,0);
+  
   tasks.forEach(t => {
     if (t.status !== '已完成' && t.deadline) {
       const taskDate = new Date(t.deadline);
-      if (!isNaN(taskDate.getTime())) { taskDate.setHours(0,0,0,0); if (Math.round((taskDate - today) / 86400000) < 0) overdue++; }
+      if (!isNaN(taskDate.getTime())) { 
+          taskDate.setHours(0,0,0,0); 
+          if (Math.round((taskDate - today) / 86400000) < 0) overdue++; 
+      }
     }
   });
-  document.getElementById('statTotal').textContent = total; document.getElementById('statDone').textContent = done; document.getElementById('statDoing').textContent = doing; document.getElementById('statPending').textContent = pending; document.getElementById('statOverdue').textContent = overdue;
-  document.getElementById('barDone').style.width = total ? (done/total*100)+'%' : '0%'; document.getElementById('barDoing').style.width = total ? (doing/total*100)+'%' : '0%'; document.getElementById('barPending').style.width = total ? (pending/total*100)+'%' : '0%'; document.getElementById('barOverdue').style.width = total ? (overdue/total*100)+'%' : '0%';
-  document.getElementById('progressFill').style.width = total ? (done/total*100)+'%' : '0%'; document.getElementById('progressText').textContent = `${done} / ${total} 完成`;
+  
+  document.getElementById('statTotal').textContent = total; 
+  document.getElementById('statDone').textContent = done; 
+  document.getElementById('statDoing').textContent = doing; 
+  document.getElementById('statPending').textContent = pending; 
+  document.getElementById('statOverdue').textContent = overdue;
+  
+  document.getElementById('barDone').style.width = total ? (done/total*100)+'%' : '0%'; 
+  document.getElementById('barDoing').style.width = total ? (doing/total*100)+'%' : '0%'; 
+  document.getElementById('barPending').style.width = total ? (pending/total*100)+'%' : '0%'; 
+  document.getElementById('barOverdue').style.width = total ? (overdue/total*100)+'%' : '0%';
+  
+  document.getElementById('progressFill').style.width = total ? (done/total*100)+'%' : '0%'; 
+  document.getElementById('progressText').textContent = `${done} / ${total} 完成`;
 }
+
 function updateWorkload() {
-  const container = document.getElementById('workloadSection'); if (!container) return;
-  const loadMap = { '未指派': { count: 0, complexity: 0 } }; teamMembers.forEach(m => loadMap[m] = { count: 0, complexity: 0 });
+  const container = document.getElementById('workloadSection'); 
+  if (!container) return;
+  
+  const loadMap = { '未指派': { count: 0, complexity: 0 } }; 
+  teamMembers.forEach(m => loadMap[m] = { count: 0, complexity: 0 });
   let maxComplexity = 1;
+  
   tasks.filter(t => t.status !== '已完成').forEach(t => {
     const assignee = (t.assignee && teamMembers.includes(t.assignee)) ? t.assignee : (t.assignee ? t.assignee : '未指派');
     if (!loadMap[assignee]) loadMap[assignee] = { count: 0, complexity: 0 };
-    loadMap[assignee].count += 1; loadMap[assignee].complexity += (Number(t.complexity) || 1);
+    loadMap[assignee].count += 1; 
+    loadMap[assignee].complexity += (Number(t.complexity) || 1);
   });
-  Object.keys(loadMap).forEach(k => { if (loadMap[k].complexity > maxComplexity) maxComplexity = loadMap[k].complexity; });
+  
+  Object.keys(loadMap).forEach(k => { 
+      if (loadMap[k].complexity > maxComplexity) maxComplexity = loadMap[k].complexity; 
+  });
+  
   let html = `<span class="workload-label">負荷評估</span>`;
   Object.keys(loadMap).forEach(m => {
     if (m === '未指派' && loadMap[m].count === 0) return;
-    const data = loadMap[m]; const pct = Math.min((data.complexity / Math.max(maxComplexity, 10)) * 100, 100);
-    html += `<div class="workload-card"><div class="wl-head"><span class="wl-name">${m}</span><span class="wl-pt">${data.complexity} pt</span></div><div class="wl-bar-bg"><div class="wl-bar-fill" style="width:${pct}%"></div></div><div class="wl-details"><span>未完成任務</span><span>${data.count} 件</span></div></div>`;
+    const data = loadMap[m]; 
+    const pct = Math.min((data.complexity / Math.max(maxComplexity, 10)) * 100, 100);
+    html += `
+      <div class="workload-card">
+        <div class="wl-head">
+          <span class="wl-name">${m}</span>
+          <span class="wl-pt">${data.complexity} pt</span>
+        </div>
+        <div class="wl-bar-bg"><div class="wl-bar-fill" style="width:${pct}%"></div></div>
+        <div class="wl-details"><span>未完成任務</span><span>${data.count} 件</span></div>
+      </div>`;
   });
   container.innerHTML = html;
 }
 
 // ─── CARD ────────────────────────────────────────────────────────────────────
 function getDeadlineColor(dl) {
-  if (!dl) return 'deadline-gray'; const d = new Date(dl); if (isNaN(d.getTime())) return 'deadline-gray';
-  const today = new Date(); today.setHours(0,0,0,0); d.setHours(0,0,0,0);
+  if (!dl) return 'deadline-gray'; 
+  const d = new Date(dl); 
+  if (isNaN(d.getTime())) return 'deadline-gray';
+  
+  const today = new Date(); 
+  today.setHours(0,0,0,0); 
+  d.setHours(0,0,0,0);
   const diffDays = Math.round((d - today) / 86400000);
-  if (diffDays < 0 || diffDays <= 2) return 'deadline-red'; if (diffDays <= 7) return 'deadline-amber'; if (diffDays <= 30) return 'deadline-blue'; return 'deadline-teal';
+  
+  if (diffDays < 0 || diffDays <= 2) return 'deadline-red'; 
+  if (diffDays <= 7) return 'deadline-amber'; 
+  if (diffDays <= 30) return 'deadline-blue'; 
+  return 'deadline-teal';
 }
-function statusClass(s) { if (s==='已完成') return 'status-done'; if (s==='進行中') return 'status-doing'; return 'status-pending'; }
-function avatarColor(name) { const colors = ['#4a9eff','#2ec4a9','#f5a623','#a78bfa','#f0524f','#4ade80']; return colors[(name.charCodeAt(0) || 0) % colors.length]; }
+
+function statusClass(s) { 
+    if (s==='已完成') return 'status-done'; 
+    if (s==='進行中') return 'status-doing'; 
+    return 'status-pending'; 
+}
+
+function avatarColor(name) { 
+    const colors = ['#4a9eff','#2ec4a9','#f5a623','#a78bfa','#f0524f','#4ade80']; 
+    return colors[(name.charCodeAt(0) || 0) % colors.length]; 
+}
 
 function renderCard(t) {
   const col = columnsData.find(c=>c.id===t.column);
   const dots = [1,2,3].map(i=>`<span class="cdot${i<=t.complexity?' on':''}"></span>`).join('');
-  const dlColor = getDeadlineColor(t.deadline); const dlText = t.deadline || '—';
-  const avc = t.assignee ? avatarColor(t.assignee) : '#545d78'; const avTxt = t.assignee ? t.assignee[0] : '';
+  const dlColor = getDeadlineColor(t.deadline); 
+  const dlText = t.deadline || '—';
+  const avc = t.assignee ? avatarColor(t.assignee) : '#545d78'; 
+  const avTxt = t.assignee ? t.assignee[0] : '';
   const dragClass = isAuthorized ? 'draggable' : '';
+  
   let cardStatusClass = '';
   if (t.status !== '已完成' && t.deadline) {
     const taskDate = new Date(t.deadline);
     if (!isNaN(taskDate.getTime())) {
-      const today = new Date(); today.setHours(0,0,0,0); taskDate.setHours(0,0,0,0);
+      const today = new Date(); 
+      today.setHours(0,0,0,0); 
+      taskDate.setHours(0,0,0,0);
       const diffDays = Math.round((taskDate - today) / 86400000);
-      if (diffDays < 0) cardStatusClass = 'overdue-deadline'; else if (diffDays >= 0 && diffDays <= 3) cardStatusClass = 'nearing-deadline';
+      if (diffDays < 0) {
+          cardStatusClass = 'overdue-deadline'; 
+      } else if (diffDays >= 0 && diffDays <= 3) {
+          cardStatusClass = 'nearing-deadline';
+      }
     }
   }
-  const actionButtons = isAuthorized ? `<div class="task-actions"><button class="task-btn" onclick="openModal(${t.id})" title="編輯"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61zm.176 4.823L9.75 4.81l-6.286 6.287a.253.253 0 0 0-.064.108l-.558 1.953 1.953-.558a.253.253 0 0 0 .108-.064zm1.238-3.763a.25.25 0 0 0-.354 0L10.811 3.65l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354z"/></svg></button><button class="task-btn del" onclick="deleteTask(${t.id})" title="刪除"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M11 1.75V3h2.25a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1 0-1.5H5V1.75C5 .784 5.784 0 6.75 0h2.5C10.216 0 11 .784 11 1.75ZM4.496 6.675l.66 6.6a.25.25 0 0 0 .249.225h5.19a.25.25 0 0 0 .249-.225l.66-6.6a.75.75 0 0 1 1.492.149l-.66 6.6A1.748 1.748 0 0 1 10.595 15h-5.19a1.75 1.75 0 0 1-1.741-1.575l-.66-6.6a.75.75 0 1 1 1.492-.15ZM6.5 1.75V3h3V1.75a.25.25 0 0 0-.25-.25h-2.5a.25.25 0 0 0-.25.25Z"/></svg></button></div>` : '';
+  
+  const actionButtons = isAuthorized ? `
+    <div class="task-actions">
+      <button class="task-btn" onclick="openModal(${t.id})" title="編輯">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61zm.176 4.823L9.75 4.81l-6.286 6.287a.253.253 0 0 0-.064.108l-.558 1.953 1.953-.558a.253.253 0 0 0 .108-.064zm1.238-3.763a.25.25 0 0 0-.354 0L10.811 3.65l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354z"/></svg>
+      </button>
+      <button class="task-btn del" onclick="deleteTask(${t.id})" title="刪除">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11 1.75V3h2.25a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1 0-1.5H5V1.75C5 .784 5.784 0 6.75 0h2.5C10.216 0 11 .784 11 1.75ZM4.496 6.675l.66 6.6a.25.25 0 0 0 .249.225h5.19a.25.25 0 0 0 .249-.225l.66-6.6a.75.75 0 0 1 1.492.149l-.66 6.6A1.748 1.748 0 0 1 10.595 15h-5.19a1.75 1.75 0 0 1-1.741-1.575l-.66-6.6a.75.75 0 1 1 1.492-.15ZM6.5 1.75V3h3V1.75a.25.25 0 0 0-.25-.25h-2.5a.25.25 0 0 0-.25.25Z"/></svg>
+      </button>
+    </div>` : '';
+    
   const tagsHtml = (t.tags && t.tags.length > 0) ? `<div class="task-tags">${t.tags.map(tag => `<span class="task-tag">#${tag}</span>`).join('')}</div>` : '';
 
-  return `<div class="task-card ${dragClass} ${cardStatusClass}" draggable="${isAuthorized ? 'true' : 'false'}" ondragstart="${isAuthorized ? `dragStart(event,${t.id})` : ''}" ondragend="${isAuthorized ? 'dragEnd(event)' : ''}" id="card-${t.id}"><div class="task-card-accent" style="background:${col?col.accent:'#555'}"></div><div class="task-top"><div class="task-name">${t.name}</div>${actionButtons}</div><div class="task-meta"><span class="badge badge-status ${statusClass(t.status)}">${t.status}</span>${t.deadline ? `<span class="task-deadline ${dlColor}">${dlText}</span>` : ''}${t.assignee ? `<span class="task-assignee"><span class="avatar" style="background:${avc}22;color:${avc}">${avTxt}</span>${t.assignee}</span>` : ''}<div class="complexity-dots">${dots}</div></div>${tagsHtml}${t.notes ? `<div class="task-notes">${t.notes}</div>` : ''}</div>`;
+  return `
+  <div class="task-card ${dragClass} ${cardStatusClass}" draggable="${isAuthorized ? 'true' : 'false'}" ondragstart="${isAuthorized ? `dragStart(event,${t.id})` : ''}" ondragend="${isAuthorized ? 'dragEnd(event)' : ''}" id="card-${t.id}">
+    <div class="task-card-accent" style="background:${col?col.accent:'#555'}"></div>
+    <div class="task-top">
+      <div class="task-name">${t.name}</div>
+      ${actionButtons}
+    </div>
+    <div class="task-meta">
+      <span class="badge badge-status ${statusClass(t.status)}">${t.status}</span>
+      ${t.deadline ? `<span class="task-deadline ${dlColor}">${dlText}</span>` : ''}
+      ${t.assignee ? `<span class="task-assignee"><span class="avatar" style="background:${avc}22;color:${avc}">${avTxt}</span>${t.assignee}</span>` : ''}
+      <div class="complexity-dots">${dots}</div>
+    </div>
+    ${tagsHtml}
+    ${t.notes ? `<div class="task-notes">${t.notes}</div>` : ''}
+  </div>`;
 }
 
 // ─── RENDER ──────────────────────────────────────────────────────────────────
 function renderAll() {
-  renderTeam(); updateStats(); updateWorkload(); updateAssigneeFilters(); updateTagFilters();
+  renderTeam(); 
+  updateStats(); 
+  updateWorkload(); 
+  updateAssigneeFilters(); 
+  updateTagFilters();
+  
   const sortedFiltered = getSorted(getFiltered()); 
-  const board = document.getElementById('board'); board.innerHTML = '';
+  const board = document.getElementById('board'); 
+  board.innerHTML = '';
   
   columnsData.forEach(col => {
     const colTasks = sortedFiltered.filter(t=>t.column===col.id);
@@ -716,11 +925,18 @@ function renderAll() {
     }
 
     div.innerHTML = `
-      <div class="col-header"><span class="col-dot ${col.dot}"></span><span class="col-title">${col.label}</span><span class="col-count">${activeTasks.length}</span></div>
+      <div class="col-header">
+          <span class="col-dot ${col.dot}"></span>
+          <span class="col-title">${col.label}</span>
+          <span class="col-count">${activeTasks.length}</span>
+      </div>
       <div class="col-body" id="col-active-${col.id}" ondragover="dragOver(event,'${col.id}')" ondragleave="dragLeave(event)" ondrop="drop(event,'${col.id}', false)">
         ${activeTasks.length ? activeTasks.map(renderCard).join('') : '<div class="col-empty">拖曳任務至此</div>'}
       </div>
-      <div class="completed-toggle" onclick="toggleCompleted('${col.id}')"><span>已收納 (${completedTasks.length})</span><span id="toggle-icon-${col.id}">▼</span></div>
+      <div class="completed-toggle" onclick="toggleCompleted('${col.id}')">
+          <span>已收納 (${completedTasks.length})</span>
+          <span id="toggle-icon-${col.id}">▼</span>
+      </div>
       <div class="completed-tasks-container" id="completed-${col.id}" style="display:none;" ondragover="dragOver(event,'${col.id}')" ondragleave="dragLeave(event)" ondrop="drop(event,'${col.id}', true)">
         ${completedTasks.length ? completedTasks.map(renderCard).join('') : '<div class="col-empty" style="padding:10px;">拖曳至此標記完成</div>'}
       </div>
@@ -730,17 +946,28 @@ function renderAll() {
 }
 
 function toggleCompleted(colId) {
-    const container = document.getElementById('completed-' + colId); const icon = document.getElementById('toggle-icon-' + colId);
-    if (container.style.display === 'none') { container.style.display = 'flex'; icon.textContent = '▲'; }
-    else { container.style.display = 'none'; icon.textContent = '▼'; }
+    const container = document.getElementById('completed-' + colId); 
+    const icon = document.getElementById('toggle-icon-' + colId);
+    if (container.style.display === 'none') { 
+        container.style.display = 'flex'; 
+        icon.textContent = '▲'; 
+    } else { 
+        container.style.display = 'none'; 
+        icon.textContent = '▼'; 
+    }
 }
 
 // ─── DRAG & DROP (任務卡片層級) ──────────────────────────────────────────────
 function getDragAfterElement(container, y) {
   const draggableElements = [...container.querySelectorAll('.task-card:not(.dragging)')];
   return draggableElements.reduce((closest, child) => {
-    const box = child.getBoundingClientRect(); const offset = y - box.top - box.height / 2;
-    if (offset < 0 && offset > closest.offset) return { offset: offset, element: child }; else return closest;
+    const box = child.getBoundingClientRect(); 
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child }; 
+    } else {
+        return closest;
+    }
   }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
@@ -761,16 +988,26 @@ function dragOver(e, colId) {
   if (dragColId) return; // 若正在拖曳面板，忽略任務層級的 hover 效果
   e.preventDefault();
   if (!isAuthorized || !dragId) return;
-  const container = e.currentTarget; container.classList.add('drag-over');
+  const container = e.currentTarget; 
+  container.classList.add('drag-over');
+  
   const sortType = document.getElementById('sortSelect').value;
   if (sortType === 'default') {
     const afterElement = getDragAfterElement(container, e.clientY);
     const draggable = document.querySelector('.dragging');
-    if (draggable) { if (afterElement == null) container.appendChild(draggable); else container.insertBefore(draggable, afterElement); }
+    if (draggable) { 
+        if (afterElement == null) {
+            container.appendChild(draggable); 
+        } else {
+            container.insertBefore(draggable, afterElement); 
+        }
+    }
   }
 }
 
-function dragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function dragLeave(e) { 
+    e.currentTarget.classList.remove('drag-over'); 
+}
 
 function drop(e, colId, isCompletedZone) {
   e.preventDefault();
@@ -783,19 +1020,26 @@ function drop(e, colId, isCompletedZone) {
   const task = tasks[taskIndex];
 
   task.column = colId;
-  if (isCompletedZone) task.status = '已完成';
-  else if (task.status === '已完成') task.status = '進行中';
+  if (isCompletedZone) {
+      task.status = '已完成';
+  } else if (task.status === '已完成') {
+      task.status = '進行中';
+  }
 
   const sortType = document.getElementById('sortSelect').value;
   if (sortType === 'default') {
-    const container = e.currentTarget; const cards = [...container.querySelectorAll('.task-card')];
+    const container = e.currentTarget; 
+    const cards = [...container.querySelectorAll('.task-card')];
     const newDomIndex = cards.findIndex(c => c.id === `card-${dragId}`);
     tasks.splice(taskIndex, 1);
 
     if (newDomIndex === -1 || newDomIndex === cards.length - 1) {
         let insertIndex = tasks.length;
         for(let i = tasks.length - 1; i >= 0; i--) {
-            if (tasks[i].column === colId && (isCompletedZone ? tasks[i].status === '已完成' : tasks[i].status !== '已完成')) { insertIndex = i + 1; break; }
+            if (tasks[i].column === colId && (isCompletedZone ? tasks[i].status === '已完成' : tasks[i].status !== '已完成')) { 
+                insertIndex = i + 1; 
+                break; 
+            }
         }
         tasks.splice(insertIndex, 0, task);
     } else {
@@ -804,7 +1048,9 @@ function drop(e, colId, isCompletedZone) {
         tasks.splice(nextTaskIndex !== -1 ? nextTaskIndex : tasks.length, 0, task);
     }
   }
-  save(); renderAll(); dragId = null;
+  save(); 
+  renderAll(); 
+  dragId = null;
 }
 
 // ─── DRAG & DROP (面板欄位層級) ──────────────────────────────────────────────
@@ -869,44 +1115,96 @@ function openModal(id) {
 
   if (id) {
     const t = tasks.find(t=>t.id===id);
-    document.getElementById('fName').value = t.name; document.getElementById('fDeadline').value = t.deadline || '';
+    document.getElementById('fName').value = t.name; 
+    document.getElementById('fDeadline').value = t.deadline || '';
+    
     const sel = document.getElementById('fAssignee');
-    if (t.assignee && !teamMembers.includes(t.assignee)) sel.innerHTML += `<option value="${t.assignee}">${t.assignee} (非團隊成員)</option>`;
+    if (t.assignee && !teamMembers.includes(t.assignee)) {
+        sel.innerHTML += `<option value="${t.assignee}">${t.assignee} (非團隊成員)</option>`;
+    }
     sel.value = t.assignee || '';
+    
     document.getElementById('fColumn').value = t.column || columnsData[0].id;
     document.getElementById('fComplexity').value = t.complexity || 2;
     document.getElementById('fStatus').value = t.status || '待處理';
     document.getElementById('fTags').value = (t.tags && Array.isArray(t.tags)) ? t.tags.join(', ') : '';
     document.getElementById('fNotes').value = t.notes || '';
   } else {
-    document.getElementById('fName').value = ''; document.getElementById('fDeadline').value = '';
-    document.getElementById('fAssignee').value = ''; document.getElementById('fColumn').value = columnsData[0].id;
-    document.getElementById('fComplexity').value = '2'; document.getElementById('fStatus').value = '待處理';
-    document.getElementById('fTags').value = ''; document.getElementById('fNotes').value = '';
+    document.getElementById('fName').value = ''; 
+    document.getElementById('fDeadline').value = '';
+    document.getElementById('fAssignee').value = ''; 
+    document.getElementById('fColumn').value = columnsData[0].id;
+    document.getElementById('fComplexity').value = '2'; 
+    document.getElementById('fStatus').value = '待處理';
+    document.getElementById('fTags').value = ''; 
+    document.getElementById('fNotes').value = '';
   }
   document.getElementById('modalBg').classList.add('open');
   setTimeout(()=>document.getElementById('fName').focus(), 100);
 }
 
-function closeModal() { document.getElementById('modalBg').classList.remove('open'); editingId = null; }
+function closeModal() { 
+    document.getElementById('modalBg').classList.remove('open'); 
+    editingId = null; 
+}
 
 function saveTask() {
-  const name = document.getElementById('fName').value.trim(); if (!name) { alert('請輸入任務名稱'); return; }
-  const rawTags = document.getElementById('fTags').value; const tags = rawTags.split(',').map(s => s.trim()).filter(s => s !== '');
+  const name = document.getElementById('fName').value.trim(); 
+  if (!name) { 
+      alert('請輸入任務名稱'); 
+      return; 
+  }
+  
+  const rawTags = document.getElementById('fTags').value; 
+  const tags = rawTags.split(',').map(s => s.trim()).filter(s => s !== '');
+  
   const data = {
-    name, deadline: document.getElementById('fDeadline').value.trim(), assignee: document.getElementById('fAssignee').value.trim(),
-    column: document.getElementById('fColumn').value, complexity: parseInt(document.getElementById('fComplexity').value),
-    status: document.getElementById('fStatus').value, tags: tags, notes: document.getElementById('fNotes').value.trim(),
+    name, 
+    deadline: document.getElementById('fDeadline').value.trim(), 
+    assignee: document.getElementById('fAssignee').value.trim(),
+    column: document.getElementById('fColumn').value, 
+    complexity: parseInt(document.getElementById('fComplexity').value),
+    status: document.getElementById('fStatus').value, 
+    tags: tags, 
+    notes: document.getElementById('fNotes').value.trim(),
   };
-  if (editingId) { const idx = tasks.findIndex(t=>t.id===editingId); tasks[idx] = { ...tasks[idx], ...data }; }
-  else { tasks.push({ id: nextId++, ...data }); }
-  save(); closeModal(); renderAll();
+  
+  if (editingId) { 
+      const idx = tasks.findIndex(t=>t.id===editingId); 
+      tasks[idx] = { ...tasks[idx], ...data }; 
+  } else { 
+      tasks.push({ id: nextId++, ...data }); 
+  }
+  save(); 
+  closeModal(); 
+  renderAll();
 }
 
 // ─── DELETE & UTILS ──────────────────────────────────────────────────────────
-function deleteTask(id) { if (!isAuthorized) return; if (!confirm('確定刪除此任務？')) return; tasks = tasks.filter(t=>t.id!==id); save(); renderAll(); }
-let toastTimer; function showToast(msg) { const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(()=>el.classList.remove('show'), 2200); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); if ((e.metaKey||e.ctrlKey) && e.key==='k' && isAuthorized) { e.preventDefault(); openModal(); } });
+function deleteTask(id) { 
+    if (!isAuthorized) return; 
+    if (!confirm('確定刪除此任務？')) return; 
+    tasks = tasks.filter(t=>t.id!==id); 
+    save(); 
+    renderAll(); 
+}
+
+let toastTimer; 
+function showToast(msg) { 
+    const el = document.getElementById('toast'); 
+    el.textContent = msg; 
+    el.classList.add('show'); 
+    clearTimeout(toastTimer); 
+    toastTimer = setTimeout(()=>el.classList.remove('show'), 2200); 
+}
+
+document.addEventListener('keydown', e => { 
+    if (e.key === 'Escape') closeModal(); 
+    if ((e.metaKey||e.ctrlKey) && e.key==='k' && isAuthorized) { 
+        e.preventDefault(); 
+        openModal(); 
+    } 
+});
 
 updateAuthUI();
 </script>
