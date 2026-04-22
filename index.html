@@ -67,138 +67,57 @@ body {
   display: flex; align-items: center; justify-content: center;
   font-size: 16px;
 }
-.logo-title {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text);
-}
-.logo-sub {
-  font-size: 11px;
-  color: var(--text3);
-  font-weight: 300;
-  margin-top: 1px;
-}
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+.logo-title { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.logo-sub { font-size: 11px; color: var(--text3); font-weight: 300; margin-top: 1px; }
+.header-actions { display: flex; align-items: center; gap: 10px; }
 .btn-add {
-  background: var(--blue);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 7px 16px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: inherit;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: opacity .15s;
+  background: var(--blue); color: #fff; border: none; border-radius: var(--radius-sm);
+  padding: 7px 16px; font-size: 13px; font-weight: 500; cursor: pointer;
+  font-family: inherit; display: flex; align-items: center; gap: 6px; transition: opacity .15s;
 }
 .btn-add:hover { opacity: .85; }
 .btn-add svg { width: 14px; height: 14px; }
-.btn-export { background: var(--green); } /* 新增匯出按鈕樣式 */
+.btn-export { background: var(--green); } 
 
 /* FILTERS */
 .filter-bar {
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 2rem;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 10px 2rem; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
 }
-.filter-label {
-  font-size: 11px;
-  color: var(--text3);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  white-space: nowrap;
-}
-.filter-pills {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
+.filter-label { font-size: 11px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
+.filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
 .pill {
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid var(--border2);
-  background: transparent;
-  color: var(--text2);
-  transition: all .15s;
-  font-family: inherit;
-  white-space: nowrap;
+  padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer;
+  border: 1px solid var(--border2); background: transparent; color: var(--text2);
+  transition: all .15s; font-family: inherit; white-space: nowrap;
 }
 .pill:hover { border-color: var(--blue); color: var(--blue); }
 .pill.active { background: var(--blue-bg); border-color: var(--blue); color: var(--blue); }
 .filter-sep { width: 1px; height: 20px; background: var(--border); }
 .search-wrap { position: relative; }
-.search-wrap svg {
-  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-  color: var(--text3); width: 14px; height: 14px;
-}
+.search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text3); width: 14px; height: 14px; }
 .search-input {
-  background: var(--bg3); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 6px 12px 6px 32px;
-  font-size: 13px; color: var(--text); font-family: inherit;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 6px 12px 6px 32px; font-size: 13px; color: var(--text); font-family: inherit;
   width: 200px; outline: none; transition: border-color .15s;
 }
 .search-input:focus { border-color: var(--blue); }
 .search-input::placeholder { color: var(--text3); }
 
-/* STATS */
-.stats-row {
-  display: grid; 
-  grid-template-columns: repeat(5, 1fr); 
-  gap: 1px;
-  background: var(--border); 
-  border-bottom: 1px solid var(--border);
-}
-.stat-card {
-  background: var(--bg2); 
-  padding: 16px 24px; 
-  display: flex;
-  flex-direction: column; 
-  gap: 4px;
-}
+/* STATS & PROGRESS */
+.stats-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--border); border-bottom: 1px solid var(--border); }
+.stat-card { background: var(--bg2); padding: 16px 24px; display: flex; flex-direction: column; gap: 4px; }
 .stat-num { font-size: 28px; font-weight: 700; line-height: 1; font-family: 'DM Mono', monospace; }
 .stat-label { font-size: 11px; color: var(--text3); font-weight: 400; text-transform: uppercase; letter-spacing: .05em; }
 .stat-bar { height: 2px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
 .stat-fill { height: 100%; border-radius: 2px; transition: width .5s ease; }
-
-/* PROGRESS */
-.progress-section { 
-  padding: 12px 2rem; 
-  background: var(--bg2); 
-  border-bottom: 1px solid var(--border); 
-  display: flex; 
-  align-items: center; 
-  gap: 12px; 
-}
+.progress-section { padding: 12px 2rem; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
 .progress-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--teal)); border-radius: 3px; transition: width .5s ease; }
 .progress-text { font-size: 12px; color: var(--text3); white-space: nowrap; font-family: 'DM Mono', monospace; }
 
 /* WORKLOAD */
-.workload-section { 
-  padding: 15px 2rem; 
-  background: var(--bg2); 
-  border-bottom: 1px solid var(--border); 
-  display: flex; 
-  align-items: center; 
-  gap: 15px; 
-  overflow-x: auto; 
-}
+.workload-section { padding: 15px 2rem; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; overflow-x: auto; }
 .workload-label { font-size: 11px; color: var(--text3); font-weight: 500; writing-mode: vertical-lr; text-align: center; letter-spacing: 0.2em; }
 .workload-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; min-width: 150px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
 .wl-head { display: flex; justify-content: space-between; align-items: center; }
@@ -209,53 +128,22 @@ body {
 .wl-details { display: flex; justify-content: space-between; font-size: 11px; color: var(--text2); }
 
 /* BOARD WRAP */
-.board-wrap {
-  padding: 20px;
-  overflow-x: auto;
-  width: 100%; 
-  box-sizing: border-box;
-  padding-bottom: 25px;
-}
-
+.board-wrap { padding: 20px; overflow-x: auto; width: 100%; box-sizing: border-box; padding-bottom: 25px; }
 .board-wrap::-webkit-scrollbar { height: 10px; }
 .board-wrap::-webkit-scrollbar-track { background: var(--bg2); border-radius: 5px; }
 .board-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 5px; }
 .board-wrap::-webkit-scrollbar-thumb:hover { background: var(--text3); }
 
 /* BOARD & COLUMN */
-.board {
-  display: flex;
-  gap: 12px; 
-  width: 100%; 
-}
-
-.column {
-  flex: 1; 
-  min-width: 150px; 
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  transition: opacity 0.2s, transform 0.2s;
-  border-radius: var(--radius);
-}
+.board { display: flex; gap: 12px; width: 100%; }
+.column { flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 8px; transition: opacity 0.2s, transform 0.2s; border-radius: var(--radius); }
 .column.draggable-col { cursor: grab; }
-.column.dragging-col {
-  opacity: 0.4;
-  transform: scale(0.98);
-  cursor: grabbing;
-}
-.column.drag-over-col {
-  box-shadow: 0 0 0 2px dashed var(--blue);
-}
-
-.col-header {
-  display: flex; align-items: center; gap: 8px; padding: 10px 12px;
-  background: var(--bg2); border-radius: var(--radius); border: 1px solid var(--border);
-}
+.column.dragging-col { opacity: 0.4; transform: scale(0.98); cursor: grabbing; }
+.column.drag-over-col { box-shadow: 0 0 0 2px dashed var(--blue); }
+.col-header { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--bg2); border-radius: var(--radius); border: 1px solid var(--border); }
 .col-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .col-title { font-size: 13px; font-weight: 600; flex: 1; }
 .col-count { font-size: 11px; color: var(--text3); background: var(--bg3); padding: 2px 7px; border-radius: 10px; font-family: 'DM Mono', monospace; }
-
 .col-body { display: flex; flex-direction: column; gap: 8px; min-height: 20px; padding: 4px 0; border-radius: var(--radius); }
 .col-body.drag-over { outline: 2px dashed var(--blue); outline-offset: 4px; background: var(--blue-bg); }
 
@@ -266,12 +154,7 @@ body {
 .completed-tasks-container.drag-over { outline: 2px dashed var(--green); outline-offset: 4px; background: var(--green-bg); }
 
 /* TASK CARD */
-@keyframes pulseGlow {
-  0%   { box-shadow: 0 0 0 0 rgba(245,166,35,0.5); border-color: var(--border); }
-  50%  { box-shadow: 0 0 10px 1px rgba(245,166,35,0.3); border-color: var(--amber); }
-  100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); border-color: var(--border); }
-}
-
+@keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(245,166,35,0.5); border-color: var(--border); } 50% { box-shadow: 0 0 10px 1px rgba(245,166,35,0.3); border-color: var(--amber); } 100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); border-color: var(--border); } }
 .task-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; transition: transform .15s, box-shadow .15s, border-color .15s; position: relative; overflow: hidden; }
 .task-card.draggable { cursor: grab; }
 .task-card:hover { border-color: var(--border2); box-shadow: 0 4px 20px rgba(0,0,0,.4); transform: translateY(-1px); }
@@ -293,8 +176,6 @@ body {
 .task-assignee { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text2); }
 .avatar { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 600; }
 .task-notes { font-size: 11px; color: var(--text3); margin-top: 6px; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-/* HASHTAGS */
 .task-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
 .task-tag { font-size: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); color: var(--text2); padding: 2px 6px; border-radius: 4px; }
 .complexity-dots { display: flex; gap: 3px; margin-left: auto; }
@@ -364,7 +245,7 @@ body {
   <div class="header-logo">
     <div class="logo-icon">📋</div>
     <div>
-      <div class="logo-title">人資任務管理面板</div>
+      <div class="logo-title">人資專案管理面板</div>
       <div class="logo-sub">HR Project Management Dashboard</div>
     </div>
   </div>
@@ -464,7 +345,26 @@ body {
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">截止時間</label>
-        <input class="form-control" id="fDeadline" type="date">
+        <input class="form-control" id="fDeadlineDate" type="date">
+        <select class="form-control" id="fDeadlineRecurring" style="display: none;">
+          <option value="">請選擇週期...</option>
+          <option value="每年 Q1">每年 Q1</option>
+          <option value="每年 Q2">每年 Q2</option>
+          <option value="每年 Q3">每年 Q3</option>
+          <option value="每年 Q4">每年 Q4</option>
+          <option value="每年 1月">每年 1月</option>
+          <option value="每年 2月">每年 2月</option>
+          <option value="每年 3月">每年 3月</option>
+          <option value="每年 4月">每年 4月</option>
+          <option value="每年 5月">每年 5月</option>
+          <option value="每年 6月">每年 6月</option>
+          <option value="每年 7月">每年 7月</option>
+          <option value="每年 8月">每年 8月</option>
+          <option value="每年 9月">每年 9月</option>
+          <option value="每年 10月">每年 10月</option>
+          <option value="每年 11月">每年 11月</option>
+          <option value="每年 12月">每年 12月</option>
+        </select>
       </div>
       <div class="form-group">
         <label class="form-label">負責人</label>
@@ -514,20 +414,30 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── 核心資料定義 ────────────────────────────────────────────────────────
+// ─── 核心資料定義與名稱更新 ────────────────────────────────────────────────
 const DEFAULT_COLUMNS = [
   { id: 'urgent',   label: '🔴 緊急', dot: 'urgent-red',    accent: '#f0524f' },
   { id: 'week',     label: '🟠 本週',  dot: 'urgent-amber',  accent: '#f5a623' },
-  { id: 'month',    label: '🔵 近期',  dot: 'urgent-blue',   accent: '#4a9eff' },
+  { id: 'month',    label: '🔵 近期',  dot: 'urgent-blue',   accent: '#4a9eff' }, // 由"本月"更為"近期"
   { id: 'longterm', label: '🟢 長期',  dot: 'urgent-teal',   accent: '#2ec4a9' },
-  { id: 'annual',   label: '🟡 循環',  dot: 'urgent-yellow', accent: '#eab308' },
+  { id: 'annual',   label: '🟡 循環',  dot: 'urgent-yellow', accent: '#eab308' }, // 由"例行"更為"循環"
   { id: 'strategic',label: '⚪ 策略',  dot: 'urgent-purple', accent: '#a78bfa' },
 ];
 
 let columnsData = [];
 try {
   const rawCols = localStorage.getItem('hr_columns');
-  columnsData = rawCols ? JSON.parse(rawCols) : [...DEFAULT_COLUMNS];
+  if (rawCols) {
+      let parsedCols = JSON.parse(rawCols);
+      // 遷移腳本：偵測並覆寫舊有快取標籤
+      parsedCols.forEach(c => {
+          if (c.id === 'month' && c.label.includes('本月')) c.label = '🔵 近期';
+          if (c.id === 'annual' && c.label.includes('例行')) c.label = '🟡 循環';
+      });
+      columnsData = parsedCols;
+  } else {
+      columnsData = [...DEFAULT_COLUMNS];
+  }
 } catch(e) {
   columnsData = [...DEFAULT_COLUMNS];
 }
@@ -541,9 +451,9 @@ const DEFAULT_TASKS = [
   {id:6,  name:"董事會議題", deadline:"2026-04-30", assignee:"淑圓", complexity:2, status:"待處理", column:"month", tags:["董事會"], notes:"陳清泰、葉順興、杜逸忠、陳勳振"},
   {id:7,  name:"張麗敏派任總稽核調薪案", deadline:"2026-06-01", assignee:"淑圓", complexity:2, status:"待處理", column:"longterm", tags:["任免", "薪酬"], notes:"薪資評估、簽呈、人事通告"},
   {id:8,  name:"莊富凱副理晉升改敘", deadline:"2026-06-01", assignee:"淑圓", complexity:2, status:"待處理", column:"longterm", tags:["薪酬", "晉升"], notes:"薪資評估、簽呈、人事通告"},
-  {id:9,  name:"薪資預算計畫", deadline:"Q3 2026", assignee:"", complexity:3, status:"待處理", column:"annual", tags:["薪酬", "專案"], notes:"經營績效、市場指標、CPI、景氣燈號、薪資中位數"},
-  {id:10, name:"理級工作報告", deadline:"每年3月", assignee:"Lucas", complexity:2, status:"待處理", column:"annual", tags:["績效"], notes:"人力指標、策略任務達成狀況"},
-  {id:11, name:"事業獎金 review", deadline:"每年1-2月", assignee:"", complexity:3, status:"待處理", column:"annual", tags:["薪酬", "績效"], notes:"營運績效、費用、毛利，GM + 財務長 + HR"},
+  {id:9,  name:"薪資預算計畫", deadline:"每年 Q3", assignee:"", complexity:3, status:"待處理", column:"annual", tags:["薪酬", "專案"], notes:"經營績效、市場指標、CPI、景氣燈號、薪資中位數"},
+  {id:10, name:"理級工作報告", deadline:"每年 3月", assignee:"Lucas", complexity:2, status:"待處理", column:"annual", tags:["績效"], notes:"人力指標、策略任務達成狀況"},
+  {id:11, name:"事業獎金 review", deadline:"每年 Q1", assignee:"", complexity:3, status:"待處理", column:"annual", tags:["薪酬", "績效"], notes:"營運績效、費用、毛利，GM + 財務長 + HR"},
   {id:12, name:"盡職（HRDD）調查", deadline:"", assignee:"", complexity:3, status:"待處理", column:"strategic", tags:["查核"], notes:"ISO 37001、ISO 31000、供應商盡職調查"},
   {id:13, name:"人資財會系統自動化介接", deadline:"", assignee:"淑圓", complexity:3, status:"待處理", column:"strategic", tags:["系統", "跨部門"], notes:"資通與SAP自動串接"},
   {id:14, name:"跨國子公司人資管理制度", deadline:"", assignee:"", complexity:3, status:"待處理", column:"strategic", tags:["辦法", "海外"], notes:"follow母公司，因地制宜（土耳其等）"},
@@ -621,7 +531,7 @@ function toggleAuth() {
 function updateAuthUI() {
   const authBtn = document.getElementById('authBtn');
   const addBtn = document.getElementById('addTaskBtn');
-  const exportBtn = document.getElementById('exportBtn'); // 取得匯出按鈕
+  const exportBtn = document.getElementById('exportBtn');
   const teamBar = document.getElementById('teamBar');
   
   if (isAuthorized) {
@@ -629,32 +539,41 @@ function updateAuthUI() {
     authBtn.style.background = 'var(--teal)'; 
     authBtn.style.borderColor = 'var(--teal)';
     addBtn.style.display = 'flex'; 
-    exportBtn.style.display = 'flex'; // 管理模式下顯示匯出按鈕
+    exportBtn.style.display = 'flex'; 
     teamBar.style.display = 'flex';
   } else {
     authBtn.innerHTML = '🔒 唯讀模式';
     authBtn.style.background = 'var(--bg3)'; 
     authBtn.style.borderColor = 'var(--border)';
     addBtn.style.display = 'none'; 
-    exportBtn.style.display = 'none'; // 唯讀模式隱藏匯出按鈕
+    exportBtn.style.display = 'none';
     teamBar.style.display = 'none';
   }
   renderAll();
 }
 
-// ─── 新增：匯出 Excel 功能 ───────────────────────────────────────────────────
+// ─── 匯出 EXCEL (包含面板排序與重整編號) ────────────────────────────────────────
 function exportToExcel() {
   if (!isAuthorized) return;
   
-  // 建立分類名稱對照表 (濾除 emoji 圖示，確保 Excel 欄位整潔)
   const colMap = {};
-  columnsData.forEach(c => {
+  const colOrder = {};
+  columnsData.forEach((c, index) => {
     colMap[c.id] = c.label.replace(/[\u2600-\u2B55]|[\uD83C-\uD83E][\uDC00-\uDFFF]/g, '').trim();
+    colOrder[c.id] = index;
   });
   
-  // 準備資料並轉換為易讀的欄位格式
-  const exportData = tasks.map(t => ({
-    "任務編號": t.id,
+  // 依照面板順序進行排序，若為同一面板再依據截止時間微調
+  const sortedTasks = [...tasks].sort((a, b) => {
+    const orderA = colOrder[a.column] !== undefined ? colOrder[a.column] : 99;
+    const orderB = colOrder[b.column] !== undefined ? colOrder[b.column] : 99;
+    if (orderA !== orderB) return orderA - orderB;
+    return (a.deadline || '') > (b.deadline || '') ? 1 : -1;
+  });
+  
+  // 利用 map 產生連續的索引做為任務編號
+  const exportData = sortedTasks.map((t, index) => ({
+    "任務編號": index + 1, 
     "任務名稱": t.name,
     "負責人": t.assignee || '未指派',
     "任務狀態": t.status,
@@ -665,12 +584,10 @@ function exportToExcel() {
     "備註說明": t.notes || ''
   }));
   
-  // 利用 SheetJS 工具生成虛擬試算表
   const ws = XLSX.utils.json_to_sheet(exportData);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "專案任務清單");
   
-  // 觸發下載實體檔案，檔名附上當前日期
   const dateStr = new Date().toISOString().slice(0, 10);
   XLSX.writeFile(wb, `HR_Project_Tasks_${dateStr}.xlsx`);
   
@@ -793,7 +710,7 @@ function updateStats() {
   today.setHours(0,0,0,0);
   
   tasks.forEach(t => {
-    if (t.status !== '已完成' && t.deadline) {
+    if (t.status !== '已完成' && t.deadline && !t.deadline.includes('每年')) {
       const taskDate = new Date(t.deadline);
       if (!isNaN(taskDate.getTime())) { 
           taskDate.setHours(0,0,0,0); 
@@ -857,6 +774,8 @@ function updateWorkload() {
 // ─── CARD ────────────────────────────────────────────────────────────────────
 function getDeadlineColor(dl) {
   if (!dl) return 'deadline-gray'; 
+  if (dl.includes('每年')) return 'deadline-teal'; // 循環任務給予專屬顏色顯示
+  
   const d = new Date(dl); 
   if (isNaN(d.getTime())) return 'deadline-gray';
   
@@ -892,7 +811,7 @@ function renderCard(t) {
   const dragClass = isAuthorized ? 'draggable' : '';
   
   let cardStatusClass = '';
-  if (t.status !== '已完成' && t.deadline) {
+  if (t.status !== '已完成' && t.deadline && !t.deadline.includes('每年')) {
     const taskDate = new Date(t.deadline);
     if (!isNaN(taskDate.getTime())) {
       const today = new Date(); 
@@ -1145,6 +1064,13 @@ function dragColEnd(e) {
   dragColId = null;
 }
 
+// ─── 監聽優先分類切換，動態顯示/隱藏對應的截止時間輸入元件 ──────────────────────
+document.getElementById('fColumn').addEventListener('change', function(e) {
+    const isRecurring = e.target.value === 'annual';
+    document.getElementById('fDeadlineDate').style.display = isRecurring ? 'none' : 'block';
+    document.getElementById('fDeadlineRecurring').style.display = isRecurring ? 'block' : 'none';
+});
+
 // ─── MODAL ───────────────────────────────────────────────────────────────────
 function openModal(id) {
   if (!isAuthorized) return; 
@@ -1157,7 +1083,6 @@ function openModal(id) {
   if (id) {
     const t = tasks.find(t=>t.id===id);
     document.getElementById('fName').value = t.name; 
-    document.getElementById('fDeadline').value = t.deadline || '';
     
     const sel = document.getElementById('fAssignee');
     if (t.assignee && !teamMembers.includes(t.assignee)) {
@@ -1165,16 +1090,38 @@ function openModal(id) {
     }
     sel.value = t.assignee || '';
     
-    document.getElementById('fColumn').value = t.column || columnsData[0].id;
+    const targetCol = t.column || columnsData[0].id;
+    document.getElementById('fColumn').value = targetCol;
+    
+    const isRecurring = targetCol === 'annual';
+    document.getElementById('fDeadlineDate').style.display = isRecurring ? 'none' : 'block';
+    document.getElementById('fDeadlineRecurring').style.display = isRecurring ? 'block' : 'none';
+    
+    if (isRecurring) {
+        document.getElementById('fDeadlineRecurring').value = t.deadline || '';
+        document.getElementById('fDeadlineDate').value = '';
+    } else {
+        document.getElementById('fDeadlineDate').value = t.deadline || '';
+        document.getElementById('fDeadlineRecurring').value = '';
+    }
+    
     document.getElementById('fComplexity').value = t.complexity || 2;
     document.getElementById('fStatus').value = t.status || '待處理';
     document.getElementById('fTags').value = (t.tags && Array.isArray(t.tags)) ? t.tags.join(', ') : '';
     document.getElementById('fNotes').value = t.notes || '';
   } else {
     document.getElementById('fName').value = ''; 
-    document.getElementById('fDeadline').value = '';
     document.getElementById('fAssignee').value = ''; 
-    document.getElementById('fColumn').value = columnsData[0].id;
+    
+    const targetCol = columnsData[0].id;
+    document.getElementById('fColumn').value = targetCol;
+    
+    const isRecurring = targetCol === 'annual';
+    document.getElementById('fDeadlineDate').style.display = isRecurring ? 'none' : 'block';
+    document.getElementById('fDeadlineRecurring').style.display = isRecurring ? 'block' : 'none';
+    document.getElementById('fDeadlineDate').value = '';
+    document.getElementById('fDeadlineRecurring').value = '';
+    
     document.getElementById('fComplexity').value = '2'; 
     document.getElementById('fStatus').value = '待處理';
     document.getElementById('fTags').value = ''; 
@@ -1199,11 +1146,16 @@ function saveTask() {
   const rawTags = document.getElementById('fTags').value; 
   const tags = rawTags.split(',').map(s => s.trim()).filter(s => s !== '');
   
+  const selectedCol = document.getElementById('fColumn').value;
+  const deadlineVal = selectedCol === 'annual' ? 
+                      document.getElementById('fDeadlineRecurring').value : 
+                      document.getElementById('fDeadlineDate').value.trim();
+  
   const data = {
     name, 
-    deadline: document.getElementById('fDeadline').value.trim(), 
+    deadline: deadlineVal, 
     assignee: document.getElementById('fAssignee').value.trim(),
-    column: document.getElementById('fColumn').value, 
+    column: selectedCol, 
     complexity: parseInt(document.getElementById('fComplexity').value),
     status: document.getElementById('fStatus').value, 
     tags: tags, 
