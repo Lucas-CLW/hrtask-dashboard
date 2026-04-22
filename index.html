@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人資任務管理面板</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 <style>
 :root {
   --bg: #0f1117;
@@ -100,6 +101,7 @@ body {
 }
 .btn-add:hover { opacity: .85; }
 .btn-add svg { width: 14px; height: 14px; }
+.btn-export { background: var(--green); } /* 新增匯出按鈕樣式 */
 
 /* FILTERS */
 .filter-bar {
@@ -220,16 +222,16 @@ body {
 .board-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 5px; }
 .board-wrap::-webkit-scrollbar-thumb:hover { background: var(--text3); }
 
-/* BOARD & COLUMN - 修正自適應縮放 */
+/* BOARD & COLUMN */
 .board {
   display: flex;
-  gap: 12px; /* 微調面板間距 */
-  width: 100%; /* 確保佈滿可用寬度 */
+  gap: 12px; 
+  width: 100%; 
 }
 
 .column {
-  flex: 1; /* 允許均分空間並等比縮放 */
-  min-width: 150px; /* 縮放極限值 */
+  flex: 1; 
+  min-width: 150px; 
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -362,13 +364,17 @@ body {
   <div class="header-logo">
     <div class="logo-icon">📋</div>
     <div>
-      <div class="logo-title">人資專案管理面板</div>
+      <div class="logo-title">人資任務管理面板</div>
       <div class="logo-sub">HR Project Management Dashboard</div>
     </div>
   </div>
   <div class="header-actions">
     <button class="btn-add" id="authBtn" style="background:var(--bg3); border:1px solid var(--border); color:var(--text);" onclick="toggleAuth()">
       🔒 唯讀模式
+    </button>
+    <button class="btn-add btn-export" id="exportBtn" style="display:none;" onclick="exportToExcel()">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/><path d="M4.645 6.136a.5.5 0 0 1 .71-.059L8 8.16l2.645-2.083a.5.5 0 0 1 .618.784l-3 2.36a.5.5 0 0 1-.618 0l-3-2.36a.5.5 0 0 1-.059-.71v.001z"/><path d="M8 8v4a.5.5 0 0 1-1 0V8a.5.5 0 0 1 1 0z"/></svg>
+      匯出 Excel
     </button>
     <button class="btn-add" id="addTaskBtn" style="display:none;" onclick="openModal()">
       <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2Z"/></svg>
@@ -615,6 +621,7 @@ function toggleAuth() {
 function updateAuthUI() {
   const authBtn = document.getElementById('authBtn');
   const addBtn = document.getElementById('addTaskBtn');
+  const exportBtn = document.getElementById('exportBtn'); // 取得匯出按鈕
   const teamBar = document.getElementById('teamBar');
   
   if (isAuthorized) {
@@ -622,15 +629,52 @@ function updateAuthUI() {
     authBtn.style.background = 'var(--teal)'; 
     authBtn.style.borderColor = 'var(--teal)';
     addBtn.style.display = 'flex'; 
+    exportBtn.style.display = 'flex'; // 管理模式下顯示匯出按鈕
     teamBar.style.display = 'flex';
   } else {
     authBtn.innerHTML = '🔒 唯讀模式';
     authBtn.style.background = 'var(--bg3)'; 
     authBtn.style.borderColor = 'var(--border)';
     addBtn.style.display = 'none'; 
+    exportBtn.style.display = 'none'; // 唯讀模式隱藏匯出按鈕
     teamBar.style.display = 'none';
   }
   renderAll();
+}
+
+// ─── 新增：匯出 Excel 功能 ───────────────────────────────────────────────────
+function exportToExcel() {
+  if (!isAuthorized) return;
+  
+  // 建立分類名稱對照表 (濾除 emoji 圖示，確保 Excel 欄位整潔)
+  const colMap = {};
+  columnsData.forEach(c => {
+    colMap[c.id] = c.label.replace(/[\u2600-\u2B55]|[\uD83C-\uD83E][\uDC00-\uDFFF]/g, '').trim();
+  });
+  
+  // 準備資料並轉換為易讀的欄位格式
+  const exportData = tasks.map(t => ({
+    "任務編號": t.id,
+    "任務名稱": t.name,
+    "負責人": t.assignee || '未指派',
+    "任務狀態": t.status,
+    "截止期限": t.deadline || '無',
+    "所屬分類": colMap[t.column] || t.column,
+    "複雜度(點數)": t.complexity,
+    "分類標籤": (t.tags || []).join(', '),
+    "備註說明": t.notes || ''
+  }));
+  
+  // 利用 SheetJS 工具生成虛擬試算表
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "專案任務清單");
+  
+  // 觸發下載實體檔案，檔名附上當前日期
+  const dateStr = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `HR_Project_Tasks_${dateStr}.xlsx`);
+  
+  showToast('Excel 匯出成功');
 }
 
 function renderTeam() {
@@ -913,7 +957,6 @@ function renderAll() {
     const div = document.createElement('div');
     div.className = 'column';
     
-    // 綁定面板層級的拖曳事件 (需有管理權限)
     if (isAuthorized) {
       div.classList.add('draggable-col');
       div.draggable = true;
@@ -972,7 +1015,7 @@ function getDragAfterElement(container, y) {
 }
 
 function dragStart(e, id) {
-  e.stopPropagation(); // 阻斷事件冒泡，防止觸發父層(面板)的拖曳行為
+  e.stopPropagation(); 
   dragId = id;
   setTimeout(() => document.getElementById('card-'+id)?.classList.add('dragging'), 0);
   e.dataTransfer.effectAllowed = 'move';
@@ -985,7 +1028,7 @@ function dragEnd(e) {
 }
 
 function dragOver(e, colId) {
-  if (dragColId) return; // 若正在拖曳面板，忽略任務層級的 hover 效果
+  if (dragColId) return; 
   e.preventDefault();
   if (!isAuthorized || !dragId) return;
   const container = e.currentTarget; 
@@ -1011,7 +1054,7 @@ function dragLeave(e) {
 
 function drop(e, colId, isCompletedZone) {
   e.preventDefault();
-  e.stopPropagation(); // 阻斷事件冒泡，防止觸發 dropCol
+  e.stopPropagation(); 
   document.querySelectorAll('.col-body, .completed-tasks-container').forEach(c=>c.classList.remove('drag-over'));
   if (!isAuthorized || !dragId) return;
 
@@ -1055,7 +1098,7 @@ function drop(e, colId, isCompletedZone) {
 
 // ─── DRAG & DROP (面板欄位層級) ──────────────────────────────────────────────
 function dragColStart(e, colId) {
-  e.stopPropagation(); // 鎖定自身拖曳層級
+  e.stopPropagation(); 
   dragColId = colId;
   setTimeout(() => e.target.classList.add('dragging-col'), 0);
   e.dataTransfer.effectAllowed = 'move';
@@ -1063,7 +1106,7 @@ function dragColStart(e, colId) {
 
 function dragColOver(e) {
   if (dragColId) {
-    e.preventDefault(); // 必須 preventDefault 才能觸發 drop
+    e.preventDefault(); 
     e.currentTarget.classList.add('drag-over-col');
   }
 }
@@ -1082,14 +1125,13 @@ function dropCol(e, targetColId) {
     return;
   }
   
-  // 找出來源面板與目標面板在陣列中的位置，進行位置互換/插入
   const fromIdx = columnsData.findIndex(c => c.id === dragColId);
   const toIdx = columnsData.findIndex(c => c.id === targetColId);
   
   if (fromIdx > -1 && toIdx > -1) {
     const [movedCol] = columnsData.splice(fromIdx, 1);
     columnsData.splice(toIdx, 0, movedCol);
-    save(); // 將更新後的面板順序寫入快取
+    save(); 
     renderAll();
   }
   dragColId = null;
@@ -1109,7 +1151,6 @@ function openModal(id) {
   editingId = id || null;
   document.getElementById('modalTitle').textContent = id ? '編輯任務' : '新增任務';
   
-  // 根據當前面板順序重新生成下拉選單
   const colSelect = document.getElementById('fColumn');
   colSelect.innerHTML = columnsData.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
 
