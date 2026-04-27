@@ -442,28 +442,28 @@ try {
 }
 
 const DEFAULT_TASKS = [
-  {id:1,  name:"蘇健銘晉升調薪案", deadline:"2026-04-13", assignee:"淑圓", complexity:2, status:"進行中", column:"urgent", tags:["薪酬", "晉升"], notes:"公告稿、晉升核決權限表、薪資調整表、簽呈、人事通告"},
-  {id:2,  name:"ISO 公告", deadline:"2026-04-10", assignee:"淑圓", complexity:1, status:"已完成", column:"urgent", tags:["辦法", "公告"], notes:"公告稿，4/10下午送簽"},
-  {id:3,  name:"陳勳振晉升調薪案", deadline:"2026-04-16", assignee:"淑圓", complexity:2, status:"進行中", column:"week", tags:["薪酬", "晉升"], notes:"公告稿、晉升核決權限表、薪資調整表、簽呈、人事通告"},
-  {id:4,  name:"陳清泰、葉順興調薪案", deadline:"2026-04-15", assignee:"淑圓", complexity:2, status:"待處理", column:"week", tags:["薪酬"], notes:"4/15前送簽 → 4/30薪酬委員會 → 5/11董事會"},
-  {id:5,  name:"蘇州永光董事長任命案", deadline:"2026-04-15", assignee:"淑圓", complexity:3, status:"待處理", column:"week", tags:["任免"], notes:"4/15前送簽 → 4/30提名+薪酬委員會 → 5/11董事會，需評估重訊"},
-  {id:6,  name:"董事會議題", deadline:"2026-04-30", assignee:"淑圓", complexity:2, status:"待處理", column:"month", tags:["董事會"], notes:"陳清泰、葉順興、杜逸忠、陳勳振"},
-  {id:7,  name:"張麗敏派任總稽核調薪案", deadline:"2026-06-01", assignee:"淑圓", complexity:2, status:"待處理", column:"longterm", tags:["任免", "薪酬"], notes:"薪資評估、簽呈、人事通告"},
-  {id:8,  name:"莊富凱副理晉升改敘", deadline:"2026-06-01", assignee:"淑圓", complexity:2, status:"待處理", column:"longterm", tags:["薪酬", "晉升"], notes:"薪資評估、簽呈、人事通告"},
+  {id:1,  name:"蘇健銘晉升調薪案", deadline:"2026-04-13", assignee:"OO", complexity:2, status:"進行中", column:"urgent", tags:["薪酬", "晉升"], notes:"公告稿、晉升核決權限表、薪資調整表、簽呈、人事通告"},
+  {id:2,  name:"ISO 公告", deadline:"2026-04-10", assignee:"OO", complexity:1, status:"已完成", column:"urgent", tags:["辦法", "公告"], notes:"公告稿，4/10下午送簽"},
+  {id:3,  name:"陳勳振晉升調薪案", deadline:"2026-04-16", assignee:"OO", complexity:2, status:"進行中", column:"week", tags:["薪酬", "晉升"], notes:"公告稿、晉升核決權限表、薪資調整表、簽呈、人事通告"},
+  {id:4,  name:"陳清泰、葉順興調薪案", deadline:"2026-04-15", assignee:"OO", complexity:2, status:"待處理", column:"week", tags:["薪酬"], notes:"4/15前送簽 → 4/30薪酬委員會 → 5/11董事會"},
+  {id:5,  name:"蘇州永光董事長任命案", deadline:"2026-04-15", assignee:"OO", complexity:3, status:"待處理", column:"week", tags:["任免"], notes:"4/15前送簽 → 4/30提名+薪酬委員會 → 5/11董事會，需評估重訊"},
+  {id:6,  name:"董事會議題", deadline:"2026-04-30", assignee:"OO", complexity:2, status:"待處理", column:"month", tags:["董事會"], notes:"陳清泰、葉順興、杜逸忠、陳勳振"},
+  {id:7,  name:"張麗敏派任總稽核調薪案", deadline:"2026-06-01", assignee:"OO", complexity:2, status:"待處理", column:"longterm", tags:["任免", "薪酬"], notes:"薪資評估、簽呈、人事通告"},
+  {id:8,  name:"莊富凱副理晉升改敘", deadline:"2026-06-01", assignee:"OO", complexity:2, status:"待處理", column:"longterm", tags:["薪酬", "晉升"], notes:"薪資評估、簽呈、人事通告"},
   {id:9,  name:"薪資預算計畫", deadline:"每年 Q3", assignee:"", complexity:3, status:"待處理", column:"annual", tags:["薪酬", "專案"], notes:"經營績效、市場指標、CPI、景氣燈號、薪資中位數"},
   {id:10, name:"理級工作報告", deadline:"每年 3月", assignee:"Lucas", complexity:2, status:"待處理", column:"annual", tags:["績效"], notes:"人力指標、策略任務達成狀況"},
   {id:11, name:"事業獎金 review", deadline:"每年 Q1", assignee:"", complexity:3, status:"待處理", column:"annual", tags:["薪酬", "績效"], notes:"營運績效、費用、毛利，GM + 財務長 + HR"},
   {id:12, name:"盡職（HRDD）調查", deadline:"", assignee:"", complexity:3, status:"待處理", column:"strategic", tags:["查核"], notes:"ISO 37001、ISO 31000、供應商盡職調查"},
-  {id:13, name:"人資財會系統自動化介接", deadline:"", assignee:"淑圓", complexity:3, status:"待處理", column:"strategic", tags:["系統", "跨部門"], notes:"資通與SAP自動串接"},
+  {id:13, name:"人資財會系統自動化介接", deadline:"", assignee:"OO", complexity:3, status:"待處理", column:"strategic", tags:["系統", "跨部門"], notes:"資通與SAP自動串接"},
   {id:14, name:"跨國子公司人資管理制度", deadline:"", assignee:"", complexity:3, status:"待處理", column:"strategic", tags:["辦法", "海外"], notes:"follow母公司，因地制宜（土耳其等）"},
   {id:15, name:"董事高階績效指標", deadline:"", assignee:"", complexity:3, status:"待處理", column:"strategic", tags:["績效", "ESG"], notes:"與ESG績效串聯、高階獎金（稅前5%）"},
   {id:16, name:"退休辦法", deadline:"", assignee:"", complexity:3, status:"待處理", column:"strategic", tags:["辦法", "法令"], notes:"新舊制度身分別、定義與做法"},
   {id:17, name:"總部提案制度", deadline:"", assignee:"", complexity:2, status:"待處理", column:"strategic", tags:["專案", "AI"], notes:"優化工作流程、AI Agent／RPA導入"},
   {id:18, name:"績效考核認定標準", deadline:"", assignee:"", complexity:2, status:"待處理", column:"strategic", tags:["績效", "辦法"], notes:"新制度、調任前後單位考核認定"},
   {id:19, name:"人力配置合理化指標", deadline:"", assignee:"", complexity:2, status:"待處理", column:"strategic", tags:["分析", "招募"], notes:"用人費用、人均產值"},
-  {id:20, name:"調派制度", deadline:"", assignee:"景雲", complexity:1, status:"待處理", column:"strategic", tags:["辦法", "任免"], notes:"行政職輪調"},
+  {id:20, name:"調派制度", deadline:"", assignee:"OO", complexity:1, status:"待處理", column:"strategic", tags:["辦法", "任免"], notes:"行政職輪調"},
   {id:21, name:"彈性、遠端工作配套作法", deadline:"", assignee:"", complexity:2, status:"待處理", column:"strategic", tags:["辦法", "跨部門"], notes:"財務＆資訊部門配合"},
-  {id:22, name:"人資一部工作分配", deadline:"", assignee:"", complexity:1, status:"待處理", column:"strategic", tags:["組織"], notes:"景雲、淑圓、佳怡"},
+  {id:22, name:"人資一部工作分配", deadline:"", assignee:"", complexity:1, status:"待處理", column:"strategic", tags:["組織"], notes:"OO,XX,AA"},
   {id:23, name:"年度調薪", deadline:"", assignee:"", complexity:2, status:"待處理", column:"annual", tags:["薪酬"], notes:""},
   {id:24, name:"誠信保險評估", deadline:"", assignee:"", complexity:1, status:"待處理", column:"strategic", tags:["查核"], notes:""},
 ];
@@ -494,10 +494,10 @@ try {
   if (Array.isArray(parsedMembers)) {
       teamMembers = parsedMembers;
   } else {
-      teamMembers = ["淑圓", "Lucas", "景雲", "佳怡"];
+      teamMembers = ["OO", "Lucas", "XX", "AA"];
   }
 } catch(e) { 
-  teamMembers = ["淑圓", "Lucas", "景雲", "佳怡"]; 
+  teamMembers = ["OO", "Lucas", "XX", "AA"]; 
 }
 
 let nextId = tasks.length > 0 ? Math.max(...tasks.map(t=>t.id)) + 1 : 1;
