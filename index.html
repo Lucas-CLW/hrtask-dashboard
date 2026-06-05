@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR 任務控管</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;
+  --border:#30363d;--border2:#484f58;
+  --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+  --blue:#58a6ff;--blue-bg:rgba(88,166,255,.10);
+  --green:#3fb950;--green-bg:rgba(63,185,80,.10);
+  --red:#f85149;--red-bg:rgba(248,81,73,.10);
+  --amber:#d29922;--amber-bg:rgba(210,153,34,.12);
+  --purple:#bc8cff;--purple-bg:rgba(188,140,255,.10);
+  --teal:#39d353;--orange:#f0883e;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Noto Sans TC',sans-serif;
+  --r:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:var(--sans);background:var(--bg);color:var(--text);font-size:15px;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* HEADER */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-l{display:flex;align-items:center;gap:12px;}
+.logo{width:30px;height:30px;background:linear-gradient(135deg,#58a6ff,#3fb950);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.repo{font-family:var(--mono);font-size:13px;}
+.repo-org{color:var(--text2);}
+.repo-slash{color:var(--text3);margin:0 3px;}
+.repo-name{color:var(--blue);font-weight:600;}
+.badge-priv{border:1px solid var(--border2);border-radius:20px;padding:1px 7px;font-size:10px;color:var(--text3);font-family:var(--mono);margin-left:4px;}
+.hdr-r{display:flex;align-items:center;gap:7px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border2);border-radius:var(--r);padding:5px 13px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);background:var(--bg3);color:var(--text);transition:background .12s,border-color .12s;white-space:nowrap;}
+.btn:hover{background:var(--bg4);border-color:var(--blue);}
+.btn svg{width:13px;height:13px;flex-shrink:0;}
+.btn-primary{background:#238636;border-color:#2ea043;color:#fff;}
+.btn-primary:hover{background:#2ea043;}
+.btn-export{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.btn-export:hover{background:rgba(63,185,80,.2);}
+.btn-auth.on{background:rgba(57,211,83,.08);border-color:#39d353;color:#39d353;}
+
+/* STATS */
+.stats{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.si{display:flex;align-items:center;gap:7px;}
+.si-num{font-family:var(--mono);font-size:22px;font-weight:600;line-height:1;}
+.si-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;}
+.sep{width:1px;height:26px;background:var(--border);}
+.prog-w{flex:1;min-width:180px;display:flex;align-items:center;gap:8px;}
+.prog-track{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,#58a6ff,#3fb950);border-radius:2px;transition:width .4s;}
+.prog-lbl{font-family:var(--mono);font-size:11px;color:var(--text3);white-space:nowrap;}
+
+/* WORKLOAD */
+.wl{background:var(--bg2);border-bottom:1px solid var(--border);padding:7px 20px;display:flex;align-items:center;gap:10px;overflow-x:auto;}
+.wl-title{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;}
+.wl-chip{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:4px 10px;display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.wl-name{font-weight:600;font-size:12px;}
+.wl-bar{width:44px;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.wl-fill{height:100%;background:var(--purple);border-radius:2px;}
+.wl-pt{font-family:var(--mono);color:var(--purple);font-size:11px;font-weight:700;}
+.wl-cnt{color:var(--text3);font-size:10px;}
+
+/* TEAM BAR */
+.team-bar{background:var(--bg3);border-bottom:1px solid var(--border);padding:7px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.team-lbl{font-size:10px;color:#39d353;font-weight:600;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;}
+.tm-chip{background:rgba(57,211,83,.06);border:1px solid rgba(57,211,83,.2);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--text2);display:inline-flex;align-items:center;gap:5px;}
+.tm-rm{cursor:pointer;opacity:.35;transition:opacity .12s;font-weight:700;}
+.tm-rm:hover{opacity:1;color:var(--red);}
+.tm-inp{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:3px 9px;font-size:11px;color:var(--text);font-family:var(--sans);outline:none;width:120px;}
+.tm-inp:focus{border-color:#39d353;}
+
+/* FILTERS */
+.fbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.flbl{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}
+.fsep{width:1px;height:18px;background:var(--border);}
+.pill{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:var(--sans);white-space:nowrap;transition:all .12s;}
+.pill:hover{border-color:var(--blue);color:var(--blue);}
+.pill.active{background:var(--blue-bg);border-color:var(--blue);color:var(--blue);}
+.srch-w{position:relative;margin-left:auto;}
+.srch-w svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--text3);width:12px;height:12px;}
+.srch{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:5px 10px 5px 26px;font-size:12px;color:var(--text);font-family:var(--sans);width:200px;outline:none;transition:border-color .12s;}
+.srch:focus{border-color:var(--blue);}
+.srch::placeholder{color:var(--text3);}
+
+/* ISSUES TOOLBAR */
+.itbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:9px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.itoggle{display:flex;align-items:center;gap:14px;}
+.itbtn{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:var(--text2);cursor:pointer;font-size:12px;font-weight:500;font-family:var(--sans);padding:3px 0;border-bottom:2px solid transparent;transition:color .12s;}
+.itbtn.active{color:var(--text);border-bottom-color:var(--blue);}
+.itcnt{background:var(--bg4);border-radius:20px;padding:1px 6px;font-size:10px;font-family:var(--mono);color:var(--text2);}
+.isort{display:flex;align-items:center;gap:6px;}
+.srtsel{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:4px 9px;font-size:11px;color:var(--text2);font-family:var(--sans);outline:none;cursor:pointer;}
+
+/* TABLE */
+.twrap{padding:0 20px 50px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.tbl{width:100%;border-collapse:collapse;table-layout:fixed;}
+.tbl col.c-exp   {width:28px;}
+.tbl col.c-name  {width:28%;}
+.tbl col.c-cat   {width:90px;}
+.tbl col.c-ass   {width:120px;}
+.tbl col.c-start {width:72px;}
+.tbl col.c-end   {width:72px;}
+.tbl col.c-status{width:92px;}
+.tbl col.c-pg    {width:120px;}
+.tbl col.c-cx    {width:46px;}
+.tbl col.c-act   {width:62px;}
+.tbl thead th{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:9px 10px;text-align:left;font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;overflow:hidden;}
+.tbl thead th:first-child{padding-left:18px;}
+/* group header */
+.tbl tbody tr.grp-hdr td{background:var(--bg3);padding:8px 18px;font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.grp-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:8px;}
+/* data rows */
+.tbl tbody tr.dr{border-bottom:1px solid var(--border);transition:background .1s;}
+.tbl tbody tr.dr:hover{background:rgba(88,166,255,.04);}
+.tbl tbody tr.dr.done-row{opacity:.6;}
+.tbl tbody td{padding:10px 10px;vertical-align:middle;overflow:hidden;}
+.tbl tbody td:first-child{padding-left:18px;}
+/* expand row */
+.tbl tbody tr.exp-row td{padding:0 18px 12px 46px !important;background:var(--bg2) !important;border-bottom:1px solid var(--border);}
+.notes-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:13px;color:var(--text2);line-height:1.85;white-space:pre-wrap;max-width:860px;}
+
+/* CELL TYPES */
+.cell-name{display:flex;align-items:flex-start;gap:8px;}
+.name-expand{cursor:pointer;color:var(--text3);font-size:10px;user-select:none;margin-top:2px;flex-shrink:0;transition:transform .15s;}
+.name-expand.open{transform:rotate(90deg);}
+.name-text{font-size:14px;font-weight:500;cursor:pointer;line-height:1.5;word-break:break-all;overflow-wrap:anywhere;}
+.name-text:hover{color:var(--blue);}
+.name-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.name-note-preview{font-size:11px;color:var(--text3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;}
+
+.gh-label{display:inline-flex;align-items:center;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);border-radius:var(--r);padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap;}
+
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:3px 9px;font-size:12px;font-weight:600;white-space:nowrap;}
+.bd-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.bs-doing{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(88,166,255,.3);}
+.bs-done{background:var(--green-bg);color:var(--green);border:1px solid rgba(63,185,80,.3);}
+.bs-pend{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);}
+.bs-nostart{background:rgba(240,136,62,.10);color:var(--orange);border:1px solid rgba(240,136,62,.3);}
+
+.dl{font-family:var(--mono);font-size:12px;white-space:nowrap;}
+.dl-r{color:var(--red);}
+.dl-a{color:var(--amber);}
+.dl-b{color:var(--blue);}
+.dl-g{color:#39d353;}
+.dl-x{color:var(--text3);}
+.dl-cont{color:var(--teal);font-size:10px;}
+
+.av{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.assignee-cell{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;}
+
+.prog-cell{display:flex;align-items:center;gap:7px;}
+.mini-bar{flex:1;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.mini-fill{height:100%;border-radius:2px;}
+.prog-pct{font-family:var(--mono);font-size:12px;color:var(--text3);white-space:nowrap;}
+
+.pips{display:flex;gap:2px;}
+.pip{width:5px;height:5px;border-radius:1px;background:var(--bg4);}
+.pip.on{background:var(--text2);}
+
+.row-acts{display:flex;gap:3px;opacity:0;transition:opacity .12s;}
+tr:hover .row-acts{opacity:1;}
+.rb{width:24px;height:24px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);color:var(--text3);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .12s;}
+.rb:hover{background:var(--bg4);border-color:var(--blue);color:var(--text);}
+.rb.del:hover{border-color:var(--red);color:var(--red);}
+.rb svg{width:11px;height:11px;}
+
+/* row states */
+@keyframes pr{0%{background:transparent;}50%{background:rgba(210,153,34,.06);}100%{background:transparent;}}
+.row-near{animation:pr 3s infinite;}
+.row-over td:first-child{border-left:2px solid var(--red);}
+.row-done td:first-child{border-left:2px solid var(--green);}
+
+/* EMPTY */
+.empty{text-align:center;padding:50px;color:var(--text3);font-size:13px;}
+
+/* MODAL */
+.mbg{position:fixed;inset:0;background:rgba(1,4,9,.72);backdrop-filter:blur(4px);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
+.mbg.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;width:100%;max-width:530px;padding:24px;animation:su .18s ease;max-height:92vh;overflow-y:auto;}
+@keyframes su{from{transform:translateY(14px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.mhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.mtitle{font-size:15px;font-weight:700;}
+.mclose{background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;line-height:1;transition:color .12s;}
+.mclose:hover{color:var(--text);}
+.fg{margin-bottom:12px;}
+.fl{font-size:10px;color:var(--text3);font-weight:600;margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:.06em;}
+.fc{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:7px 10px;font-size:12px;color:var(--text);font-family:var(--sans);outline:none;transition:border-color .12s;}
+.fc:focus{border-color:var(--blue);}
+.fc::placeholder{color:var(--text3);}
+textarea.fc{resize:vertical;min-height:90px;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.factions{display:flex;gap:7px;justify-content:flex-end;margin-top:16px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:18px;right:18px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:9px 15px;font-size:12px;color:var(--text);box-shadow:0 8px 30px rgba(0,0,0,.5);transform:translateY(7px);opacity:0;transition:all .18s;z-index:500;display:flex;align-items:center;gap:7px;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+@media(max-width:768px){
+  .hdr{padding:0 14px;}
+  .stats,.fbar,.twrap,.wl{padding-left:14px;padding-right:14px;}
+  .twrap{padding:0 0 40px;}
+  .tbl{width:100%;}
+  .fr{grid-template-columns:1fr;}
+  .srch{width:150px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-l">
+    <div class="logo">📋</div>
+    <div class="repo">
+      <span class="repo-org">HR</span>
+      <span class="repo-slash">/</span>
+      <span class="repo-name">project-tracker</span>
+      <span class="badge-priv">Private</span>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <button class="btn btn-auth" id="authBtn" onclick="toggleAuth()">🔒 唯讀</button>
+    <button class="btn btn-export" id="exportBtn" style="display:none" onclick="exportExcel()">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"/><path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.97a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.779a.749.749 0 1 1 1.06-1.06l1.97 1.97Z"/></svg>
+      匯出 Excel
+    </button>
+    <button class="btn btn-primary" id="addBtn" style="display:none" onclick="openModal()">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M7.75 2a.75.75 0 0 1 .75.75V7h4.25a.75.75 0 0 1 0 1.5H8.5v4.25a.75.75 0 0 1-1.5 0V8.5H2.75a.75.75 0 0 1 0-1.5H7V2.75A.75.75 0 0 1 7.75 2Z"/></svg>
+      New task
+    </button>
+  </div>
+</header>
+
+<!-- STATS -->
+<div class="stats" id="statsBar">
+  <div class="si"><div class="si-num" id="sT" style="color:var(--text)">0</div><div class="si-lbl">Total</div></div>
+  <div class="sep"></div>
+  <div class="si"><div class="si-num" id="sDn" style="color:var(--green)">0</div><div class="si-lbl">Done</div></div>
+  <div class="si"><div class="si-num" id="sDo" style="color:var(--blue)">0</div><div class="si-lbl">In Progress</div></div>
+  <div class="si"><div class="si-num" id="sPe" style="color:var(--text2)">0</div><div class="si-lbl">Pending</div></div>
+  <div class="si"><div class="si-num" id="sOv" style="color:var(--red)">0</div><div class="si-lbl">Overdue</div></div>
+  <div class="sep"></div>
+  <div class="prog-w">
+    <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-weight:600;white-space:nowrap;">Progress</span>
+    <div class="prog-track"><div class="prog-fill" id="pgF" style="width:0%"></div></div>
+    <span class="prog-lbl" id="pgL">0/0</span>
+  </div>
+</div>
+
+<!-- WORKLOAD -->
+<div class="wl" id="wlBar"><span class="wl-title">Workload</span></div>
+
+<!-- TEAM BAR -->
+<div class="team-bar" id="teamBar" style="display:none">
+  <span class="team-lbl">Team</span>
+  <div id="tmChips"></div>
+  <input class="tm-inp" id="newMbr" placeholder="新增成員..." onkeydown="if(event.key==='Enter')addMember()">
+  <button class="btn" style="padding:3px 9px;font-size:11px;" onclick="addMember()">+ 新增</button>
+</div>
+
+<!-- FILTER BAR -->
+<div class="fbar">
+  <span class="flbl">狀態</span>
+  <div id="statusPills" style="display:flex;gap:5px;flex-wrap:wrap;">
+    <button class="pill active" data-g="status" data-v="all" onclick="setF('status','all',this)">全部</button>
+    <button class="pill" data-g="status" data-v="進行中" onclick="setF('status','進行中',this)">進行中</button>
+    <button class="pill" data-g="status" data-v="待處理" onclick="setF('status','待處理',this)">待處理</button>
+    <button class="pill" data-g="status" data-v="未開始" onclick="setF('status','未開始',this)">未開始</button>
+    <button class="pill" data-g="status" data-v="已完成" onclick="setF('status','已完成',this)">已完成</button>
+  </div>
+  <div class="fsep"></div>
+  <span class="flbl">負責人</span>
+  <div id="assPills" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
+  <div class="fsep"></div>
+  <span class="flbl">標題</span>
+  <div id="grpPills" style="display:flex;gap:5px;flex-wrap:wrap;"></div>
+  <div class="srch-w">
+    <svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.868-3.834zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+    <input class="srch" type="text" placeholder="搜尋任務、重點..." id="srchInp" oninput="renderAll()">
+  </div>
+</div>
+
+<!-- ISSUES TOOLBAR -->
+<div class="itbar">
+  <div class="itoggle">
+    <button class="itbtn active" id="openBtn" onclick="setView('open',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/><path fill-rule="evenodd" d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0 0-13Z"/></svg>
+      Open <span class="itcnt" id="openCnt">0</span>
+    </button>
+    <button class="itbtn" id="closedBtn" onclick="setView('closed',this)">
+      <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>
+      Closed <span class="itcnt" id="closedCnt">0</span>
+    </button>
+  </div>
+  <div class="isort">
+    <span style="font-size:11px;color:var(--text3);">排序</span>
+    <select class="srtsel" id="sortSel" onchange="renderAll()">
+      <option value="default">預設</option>
+      <option value="dlAsc">截止日 近→遠</option>
+      <option value="dlDesc">截止日 遠→近</option>
+      <option value="cxDesc">複雜度 高→低</option>
+      <option value="pgDesc">進度 高→低</option>
+    </select>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="twrap">
+  <table class="tbl" id="mainTbl">
+    <colgroup>
+      <col class="c-exp">
+      <col class="c-name">
+      <col class="c-cat">
+      <col class="c-ass">
+      <col class="c-start">
+      <col class="c-end">
+      <col class="c-status">
+      <col class="c-pg">
+      <col class="c-cx">
+      <col class="c-act">
+    </colgroup>
+    <thead>
+      <tr>
+        <th></th>
+        <th>任務</th>
+        <th>大類</th>
+        <th>執行者</th>
+        <th>啟動</th>
+        <th>截止</th>
+        <th>狀態</th>
+        <th>進度</th>
+        <th>複雜</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="tBody"></tbody>
+  </table>
+  <div class="empty" id="emptyEl" style="display:none">
+    <div style="font-size:36px;margin-bottom:10px;">🔍</div>
+    找不到符合條件的任務
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="mbg" id="mBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="mhd">
+      <span class="mtitle" id="mTitle">New Task</span>
+      <button class="mclose" onclick="closeModal()">×</button>
+    </div>
+    <div class="fg"><label class="fl">任務名稱 *</label><input class="fc" id="fName" type="text" placeholder="輸入任務名稱"></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">標題分類</label><select class="fc" id="fGroup"><option value="專案">專案</option><option value="例行">例行</option></select></div>
+      <div class="fg"><label class="fl">大類</label><select class="fc" id="fCat">
+        <option>招募任用</option><option>訓練發展</option><option>制度辦法</option>
+        <option>績效考核</option><option>工作交接</option><option>平台工具</option><option>其他</option>
+      </select></div>
+    </div>
+    <div class="fr">
+      <div class="fg">
+        <label class="fl">執行者（多人用 / 分隔）</label>
+        <input class="fc" id="fAss" type="text" placeholder="e.g. Lucas 或 晏沂/Lucas" list="memberList" autocomplete="off">
+        <datalist id="memberList"></datalist>
+      </div>
+      <div class="fg"><label class="fl">狀態</label><select class="fc" id="fStatus">
+        <option>待處理</option><option>進行中</option><option>已完成</option><option>未開始</option>
+      </select></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">啟動時間</label><input class="fc" id="fStart" type="date"></div>
+      <div class="fg"><label class="fl">截止時間</label><input class="fc" id="fEnd" type="date"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">複雜度</label><select class="fc" id="fCx"><option value="1">● 低</option><option value="2">●● 中</option><option value="3">●●● 高</option></select></div>
+      <div class="fg"><label class="fl">進度 %</label><input class="fc" id="fPg" type="number" min="0" max="100" placeholder="0~100"></div>
+    </div>
+    <div class="fg"><label class="fl">重點備註</label><textarea class="fc" id="fNotes" placeholder="輸入重點事項、備忘..."></textarea></div>
+    <div class="factions">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveTask()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="tIcon">✓</span><span id="tMsg"></span></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const DEFAULT_TASKS = [
+  // 專案
+  {id:1,  grp:"專案", cat:"招募任用", name:"面談評估表",            ass:"",           start:"5/22", end:"-",    status:"進行中", pg:30, cx:2, notes:"1. 油站站長需求\n2. 面試時能協助評估人選"},
+  {id:2,  grp:"專案", cat:"訓練發展", name:"教育訓練辦法",          ass:"Lucas",      start:"-",    end:"-",    status:"進行中", pg:20, cx:2, notes:"1. 現況無相關辦法及流程\n2. 薪工循環"},
+  {id:3,  grp:"專案", cat:"訓練發展", name:"外訓管理",              ass:"Lucas",      start:"-",    end:"-",    status:"進行中", pg:40, cx:2, notes:"1. 先詢問每個人有沒有空 > 需求單位上需求單 > 簽過 > 報名 > 發票逐一問要開的抬頭跟統編\n2. 要上EIP與飛躍將訓練紀錄上傳 > Excel紀錄\n3. 6/5結論，紀錄留存飛躍即可；與辦訓單位確認能否正本給當事人，給公司電子掃描檔即可"},
+  {id:4,  grp:"專案", cat:"工作交接", name:"訓練工作交接",          ass:"晏沂/右昀",  start:"5/25", end:"5/25", status:"已完成", pg:100, cx:1, notes:"1. 與HRM Team交接訓練工作"},
+  {id:5,  grp:"專案", cat:"制度辦法", name:"工作場所性騷擾防制措施申訴及懲戒管理要點", ass:"Lucas", start:"5/21", end:"6/5", status:"進行中", pg:60, cx:3, notes:"1. 當辦法內容調整符合新規\n2. 同步檢視不法及霸凌並建議\n3. 先確認法規是否要求不法侵害一定要設置辦法 - yes\n4. 與職安確認不法侵害是否可以用公法法條 - no\n5. 與職安確認霸凌辦法是否開始撰寫\n6. 性騷辦法以法條內文撰寫"},
+  {id:6,  grp:"專案", cat:"制度辦法", name:"主管司機出勤",          ass:"Lucas",      start:"6/5",  end:"6/12", status:"進行中", pg:20, cx:2, notes:"1. 司機出勤時數核查\n2. 84-1申報制度與規則"},
+  {id:7,  grp:"專案", cat:"訓練發展", name:"RWP教育訓練",           ass:"晏沂/Lucas", start:"6/17", end:"6/17", status:"進行中", pg:10, cx:2, notes:"1. 新事業窗口 Kate (游凱卉)\n2. 普通窗口 陳泳稔\n3. 教材/講師由新事業單位協助\n4. 上課方式取視訊\n5. 上課對象油站站長/區經理\n6. 上課時間1.5H\n7. 人資協助於網路上課名單，簽到紀錄，滿意度"},
+  {id:8,  grp:"專案", cat:"訓練發展", name:"儲備幹部培育新制",      ass:"晏沂/新同事",start:"5/20", end:"6/30", status:"進行中", pg:25, cx:3, notes:"1. MA角色定義\n2. 考核方式初(中案)\n3. 職涯階階梯(儲幹 > 副站 > 站長)\n4. 油站主管的必要技能\n5. 區組理 > 人資長 > 執行長 > 董總長 > 薪總法"},
+  {id:9,  grp:"專案", cat:"招募任用", name:"招募流程討論",          ass:"Lucas",      start:"6/22", end:"6/30", status:"進行中", pg:15, cx:2, notes:"1. 翻譯成英文版\n2. 發信給DV先給他看流程書，如沒有意見的話，徵得同意後與單位主管說明\n3. 預計1/月進度"},
+  {id:10, grp:"專案", cat:"績效考核", name:"績效考核制度",          ass:"Lucas/右昀", start:"5/21", end:"10/31",status:"未開始", pg:0,  cx:3, notes:"1. 提出新版績效考核制度\n2. 6月中下旬提出草案\n3. 順利的話10月份進道\n4. 提供管來層晉升、框新的依據"},
+  {id:11, grp:"專案", cat:"平台工具", name:"教育訓練平台",          ass:"Lucas",      start:"5/20", end:"11/30",status:"進行中", pg:10, cx:2, notes:"1. 架設在sharepoint\n2. 試著看能否播放影片\n3. 觀看及訓練紀錄\nhttps://slc33983853.sharepoint.com/sites/e-learning"},
+  // 例行
+  {id:12, grp:"例行", cat:"訓練發展", name:"訓練進度與紀錄持續追蹤",ass:"晏沂/新同事",start:"5/21", end:"持續",  status:"進行中", pg:50, cx:2, notes:"1. 關課總覽表 \\\\enas\\New_prsn\\2023公/檔\\50-教育訓練\\51-年度計畫\\2026年度\n2. 受訓紀錄表(未建立)\n3. 2026新人訓練名單 \\\\enas\\New_prsn\\2023公/檔\\50-教育訓練\\53-訓練紀錄\\2026年度\\OJT\\新人訓練課程"},
+  {id:13, grp:"例行", cat:"訓練發展", name:"跑班管理",              ass:"晏沂/新同事",start:"5/21", end:"持續",  status:"進行中", pg:40, cx:2, notes:"1. 確實填寫跑班管名單\n2. 安排回訓日期\n3. 專業訓練連接機構採購\n4. 與外訓紀存結合\n\n1. 跑班管理統表_20260522 \\\\enas\\New_prsn\\2023公/檔\\50-教育訓練\\52-跑班管理\n2. ★各廠區跑班整理 \\\\enas\\New_prsn\\2023公/檔\\50-教育訓練\\52-跑班管理\\技術總覽(法規總覽)"},
+  {id:14, grp:"例行", cat:"招募任用", name:"職缺招募",              ass:"捷文/吳左昀",start:"5/21", end:"持續",  status:"進行中", pg:45, cx:2, notes:"1. 職缺持續招募\n2. 職缺/員額控管表\n3. 招募成效分析表 - done\n\n1. 招募漏斗全視角 Dashboard \\\\enas\\New_prsn\\2023公/檔\\20-招募任用雜述\\22-招募作業\\22.8 招募數據"},
+  {id:15, grp:"例行", cat:"招募任用", name:"獵才管理",              ass:"Lucas",      start:"5/22", end:"持續",  status:"進行中", pg:30, cx:1, notes:"1. 獵才廠商管理\n2. 獵才費用管理"},
+  {id:16, grp:"專案", cat:"訓練發展", name:"新人訓練架構",          ass:"Lucas/晏沂", start:"5/25", end:"持續",  status:"進行中", pg:20, cx:2, notes:"1. 檢視新人訓練架構與調整\n2. 檢視課程內容"},
+];
+
+const LSKEY = 'hr_v3_tasks';
+const LSTEAM = 'hr_v3_team';
+let tasks = [];
+try {
+  const p = JSON.parse(localStorage.getItem(LSKEY));
+  tasks = Array.isArray(p) && p.length >= 1 ? p : DEFAULT_TASKS;
+} catch { tasks = DEFAULT_TASKS; }
+if (!localStorage.getItem(LSKEY)) localStorage.setItem(LSKEY, JSON.stringify(tasks));
+
+let teamMembers = [];
+try {
+  const p = JSON.parse(localStorage.getItem(LSTEAM));
+  teamMembers = Array.isArray(p) ? p : ["Lucas","晏沂","右昀","捷文","吳左昀","新同事"];
+} catch { teamMembers = ["Lucas","晏沂","右昀","捷文","吳左昀","新同事"]; }
+
+let nextId = tasks.length ? Math.max(...tasks.map(t=>t.id))+1 : 1;
+let editId = null;
+let curView = 'open';
+let filters = {status:'all', assignee:'all', grp:'all'};
+let expanded = new Set();
+let isAuth = false;
+const PWD = 'hr';
+
+const ACOLORS = ['#58a6ff','#3fb950','#d29922','#bc8cff','#f85149','#39d353','#f0883e','#79c0ff'];
+function avc(n){ return ACOLORS[(n||'').charCodeAt(0)%ACOLORS.length]||'#8b949e'; }
+
+function save(){
+  localStorage.setItem(LSKEY, JSON.stringify(tasks));
+  localStorage.setItem(LSTEAM, JSON.stringify(teamMembers));
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+function toggleAuth(){
+  if(!isAuth){
+    const p=prompt('管理員密碼：');
+    if(p===PWD) isAuth=true; else{ if(p!==null) showToast('密碼錯誤','❌'); return; }
+  } else isAuth=false;
+  applyAuthUI();
+}
+function applyAuthUI(){
+  const ab=document.getElementById('authBtn');
+  if(isAuth){ ab.textContent='🔓 管理模式'; ab.classList.add('on');
+    document.getElementById('addBtn').style.display='inline-flex';
+    document.getElementById('exportBtn').style.display='inline-flex';
+    document.getElementById('teamBar').style.display='flex';
+  } else { ab.textContent='🔒 唯讀'; ab.classList.remove('on');
+    document.getElementById('addBtn').style.display='none';
+    document.getElementById('exportBtn').style.display='none';
+    document.getElementById('teamBar').style.display='none';
+  }
+  renderAll();
+}
+
+// ── TEAM ──────────────────────────────────────────────────────────────────────
+function addMember(){
+  const inp=document.getElementById('newMbr'); const n=inp.value.trim();
+  if(n && !teamMembers.includes(n)){ teamMembers.push(n); save(); inp.value=''; renderAll(); }
+}
+function removeMember(n){
+  if(!confirm(`確定移除「${n}」？`)) return;
+  teamMembers=teamMembers.filter(m=>m!==n); save(); renderAll();
+}
+function renderTeam(){
+  document.getElementById('tmChips').innerHTML=
+    teamMembers.map(m=>`<span class="tm-chip">${m}<span class="tm-rm" onclick="removeMember('${m}')">×</span></span>`).join('');
+  // update datalist for free-text assignee input
+  const dl=document.getElementById('memberList');
+  if(dl){ dl.innerHTML=teamMembers.map(m=>`<option value="${m}">`).join(''); }
+}
+
+// ── FILTERS ───────────────────────────────────────────────────────────────────
+function setF(g,v,btn){
+  filters[g]=v;
+  document.querySelectorAll(`[data-g="${g}"]`).forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll();
+}
+function setView(v,btn){
+  curView=v;
+  document.getElementById('openBtn').classList.remove('active');
+  document.getElementById('closedBtn').classList.remove('active');
+  btn.classList.add('active');
+  renderAll();
+}
+function updateFilterPills(){
+  // assignee
+  const asses=[...new Set([...teamMembers,...tasks.map(t=>t.ass).filter(Boolean)])].sort();
+  const aw=document.getElementById('assPills'); const ca=filters.assignee;
+  aw.innerHTML=`<button class="pill ${ca==='all'?'active':''}" data-g="assignee" data-v="all" onclick="setF('assignee','all',this)">全部</button>`+
+    asses.map(a=>`<button class="pill ${ca===a?'active':''}" data-g="assignee" data-v="${a}" onclick="setF('assignee','${a}',this)">${a}</button>`).join('');
+  // group
+  const grps=[...new Set(tasks.map(t=>t.grp).filter(Boolean))].sort();
+  const gw=document.getElementById('grpPills'); const cg=filters.grp;
+  gw.innerHTML=`<button class="pill ${cg==='all'?'active':''}" data-g="grp" data-v="all" onclick="setF('grp','all',this)">全部</button>`+
+    grps.map(g=>`<button class="pill ${cg===g?'active':''}" data-g="grp" data-v="${g}" onclick="setF('grp','${g}',this)">${g}</button>`).join('');
+}
+
+function getFiltered(){
+  const q=document.getElementById('srchInp').value.toLowerCase();
+  return tasks.filter(t=>{
+    const isClosed=t.status==='已完成';
+    if(curView==='open' && isClosed) return false;
+    if(curView==='closed' && !isClosed) return false;
+    if(filters.status!=='all' && t.status!==filters.status) return false;
+    if(filters.assignee!=='all' && t.ass!==filters.assignee) return false;
+    if(filters.grp!=='all' && t.grp!==filters.grp) return false;
+    if(q && !(t.name||'').toLowerCase().includes(q) && !(t.notes||'').toLowerCase().includes(q) && !(t.cat||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+function getSorted(arr){
+  const s=document.getElementById('sortSel').value;
+  const a=[...arr];
+  const parseD=v=>{
+    if(!v||v==='-'||v==='持續') return null;
+    if(v.includes('/')){const[m,d]=v.split('/');return new Date(2026,+m-1,+d);}
+    return new Date(v);
+  };
+  if(s==='dlAsc') a.sort((x,y)=>{const dx=parseD(x.end),dy=parseD(y.end);if(!dx)return 1;if(!dy)return-1;return dx-dy;});
+  else if(s==='dlDesc') a.sort((x,y)=>{const dx=parseD(x.end),dy=parseD(y.end);if(!dx)return 1;if(!dy)return-1;return dy-dx;});
+  else if(s==='cxDesc') a.sort((x,y)=>(y.cx||0)-(x.cx||0));
+  else if(s==='pgDesc') a.sort((x,y)=>(y.pg||0)-(x.pg||0));
+  return a;
+}
+
+// ── STATS ─────────────────────────────────────────────────────────────────────
+function updateStats(){
+  const total=tasks.length,done=tasks.filter(t=>t.status==='已完成').length,
+        doing=tasks.filter(t=>t.status==='進行中').length,
+        pend=tasks.filter(t=>t.status==='待處理').length;
+  const today=new Date();today.setHours(0,0,0,0);
+  let over=0;
+  tasks.forEach(t=>{
+    if(t.status!=='已完成' && t.end && t.end!=='-' && t.end!=='持續'){
+      let d; if(t.end.includes('/')){const[m,dd]=t.end.split('/');d=new Date(2026,+m-1,+dd);}else d=new Date(t.end);
+      if(!isNaN(d)&&d<today)over++;
+    }
+  });
+  document.getElementById('sT').textContent=total;
+  document.getElementById('sDn').textContent=done;
+  document.getElementById('sDo').textContent=doing;
+  document.getElementById('sPe').textContent=pend;
+  document.getElementById('sOv').textContent=over;
+  document.getElementById('pgF').style.width=total?(done/total*100)+'%':'0%';
+  document.getElementById('pgL').textContent=`${done}/${total}`;
+  const open=tasks.filter(t=>t.status!=='已完成').length;
+  document.getElementById('openCnt').textContent=open;
+  document.getElementById('closedCnt').textContent=done;
+}
+
+function updateWorkload(){
+  const map={};
+  teamMembers.forEach(m=>map[m]={c:0,pt:0});
+  tasks.filter(t=>t.status!=='已完成').forEach(t=>{
+    // support "A/B" assignee strings
+    const names=(t.ass||'').split('/').map(n=>n.trim()).filter(Boolean);
+    names.forEach(n=>{ if(map[n]){map[n].c++;map[n].pt+=(t.cx||1);} });
+  });
+  const maxPt=Math.max(1,...Object.values(map).map(v=>v.pt));
+  let html=`<span class="wl-title">Workload</span>`;
+  teamMembers.forEach(m=>{
+    if(!map[m]||map[m].c===0)return;
+    const pct=Math.min((map[m].pt/maxPt)*100,100);
+    html+=`<div class="wl-chip"><span class="wl-name">${m}</span><div class="wl-bar"><div class="wl-fill" style="width:${pct}%"></div></div><span class="wl-pt">${map[m].pt}pt</span><span class="wl-cnt">${map[m].c}件</span></div>`;
+  });
+  document.getElementById('wlBar').innerHTML=html;
+}
+
+// ── DEADLINE HELPERS ──────────────────────────────────────────────────────────
+function dlCls(v){
+  if(!v||v==='-') return 'dl-x';
+  if(v==='持續') return 'dl-cont';
+  const today=new Date();today.setHours(0,0,0,0);
+  let d; if(v.includes('/')){const[m,dd]=v.split('/');d=new Date(2026,+m-1,+dd);}else d=new Date(v);
+  if(isNaN(d))return 'dl-x';
+  d.setHours(0,0,0,0);
+  const diff=Math.round((d-today)/86400000);
+  if(diff<0)return 'dl-r';
+  if(diff<=3)return 'dl-a';
+  if(diff<=14)return 'dl-b';
+  return 'dl-g';
+}
+function rowCls(t){
+  if(t.status==='已完成')return 'row-done';
+  if(!t.end||t.end==='-'||t.end==='持續')return '';
+  const today=new Date();today.setHours(0,0,0,0);
+  let d; if(t.end.includes('/')){const[m,dd]=t.end.split('/');d=new Date(2026,+m-1,+dd);}else d=new Date(t.end);
+  if(isNaN(d))return '';
+  d.setHours(0,0,0,0);
+  const diff=Math.round((d-today)/86400000);
+  if(diff<0)return 'row-over';
+  if(diff<=3)return 'row-near';
+  return '';
+}
+
+function statusBadge(s){
+  if(s==='已完成')return`<span class="badge bs-done"><span class="bd-dot" style="background:var(--green)"></span>${s}</span>`;
+  if(s==='進行中')return`<span class="badge bs-doing"><span class="bd-dot" style="background:var(--blue)"></span>${s}</span>`;
+  if(s==='未開始')return`<span class="badge bs-nostart"><span class="bd-dot" style="background:var(--orange)"></span>${s}</span>`;
+  return`<span class="badge bs-pend"><span class="bd-dot" style="background:var(--text3)"></span>${s}</span>`;
+}
+
+function pgCell(pct){
+  const p=pct||0;
+  const col=p===100?'var(--green)':p>=50?'var(--blue)':'var(--amber)';
+  return`<div class="prog-cell"><div class="mini-bar"><div class="mini-fill" style="width:${p}%;background:${col}"></div></div><span class="prog-pct">${p}%</span></div>`;
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderAll(){
+  renderTeam(); updateStats(); updateWorkload(); updateFilterPills();
+  const data=getSorted(getFiltered());
+  const tbody=document.getElementById('tBody');
+  tbody.innerHTML='';
+  document.getElementById('emptyEl').style.display=data.length?'none':'block';
+  if(!data.length)return;
+
+  // Group by grp when view is default and no grp filter
+  const useGroups=document.getElementById('sortSel').value==='default'&&filters.grp==='all';
+  const groups=useGroups?[...new Set(data.map(t=>t.grp))]:[null];
+  const GRP_COLOR={專案:'#58a6ff',例行:'#3fb950'};
+
+  groups.forEach(grp=>{
+    const rows=grp?data.filter(t=>t.grp===grp):data;
+    if(!rows.length)return;
+
+    if(grp){
+      const gtr=document.createElement('tr');
+      gtr.className='grp-hdr';
+      const col=GRP_COLOR[grp]||'#8b949e';
+      gtr.innerHTML=`<td colspan="10"><span class="grp-dot" style="background:${col}"></span>${grp} (${rows.length})</td>`;
+      tbody.appendChild(gtr);
+    }
+
+    rows.forEach(t=>{
+      const rc=rowCls(t);
+      const isExp=expanded.has(t.id);
+      const pips=[1,2,3].map(i=>`<span class="pip${i<=(t.cx||1)?' on':''}"></span>`).join('');
+      const ac=avc(t.ass||'');
+      const notePreview=(t.notes||'').split('\n')[0].replace(/^[\d+]\.\s*/,'').trim();
+      const actCells=isAuth?`<td><div class="row-acts">
+        <button class="rb" title="編輯" onclick="openModal(${t.id})"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61zm.176 4.823L9.75 4.81l-6.286 6.287a.253.253 0 0 0-.064.108l-.558 1.953 1.953-.558a.253.253 0 0 0 .108-.064zm1.238-3.763a.25.25 0 0 0-.354 0L10.811 3.65l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354z"/></svg></button>
+        <button class="rb del" title="刪除" onclick="delTask(${t.id})"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M11 1.75V3h2.25a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1 0-1.5H5V1.75C5 .784 5.784 0 6.75 0h2.5C10.216 0 11 .784 11 1.75ZM4.496 6.675l.66 6.6a.25.25 0 0 0 .249.225h5.19a.25.25 0 0 0 .249-.225l.66-6.6a.75.75 0 0 1 1.492.149l-.66 6.6A1.748 1.748 0 0 1 10.595 15h-5.19a1.75 1.75 0 0 1-1.741-1.575l-.66-6.6a.75.75 0 1 1 1.492-.15ZM6.5 1.75V3h3V1.75a.25.25 0 0 0-.25-.25h-2.5a.25.25 0 0 0-.25.25Z"/></svg></button>
+      </div></td>`:'<td></td>';
+
+      const tr=document.createElement('tr');
+      tr.className=`dr ${rc}${t.status==='已完成'?' done-row':''}`;
+      tr.id=`r${t.id}`;
+      tr.innerHTML=`
+        <td><span class="name-expand${isExp?' open':''}" onclick="toggleExp(${t.id})">▶</span></td>
+        <td><div class="cell-name">
+          <div>
+            <div class="name-text" onclick="toggleExp(${t.id})">${t.name}</div>
+            ${t.cat?`<div class="name-sub">${t.cat}</div>`:''}
+            ${notePreview&&!isExp?`<div class="name-note-preview">${notePreview}</div>`:''}
+          </div>
+        </div></td>
+        <td><span class="gh-label">${t.grp||'—'}</span></td>
+        <td>${t.ass?`<div class="assignee-cell"><span class="av" style="background:${ac}22;color:${ac}">${(t.ass||'?')[0]}</span>${t.ass}</div>`:'<span style="color:var(--text3);font-size:11px;">—</span>'}</td>
+        <td><span class="dl ${dlCls(t.start)}">${t.start||'—'}</span></td>
+        <td><span class="dl ${dlCls(t.end)}">${t.end||'—'}</span></td>
+        <td>${statusBadge(t.status)}</td>
+        <td>${pgCell(t.pg)}</td>
+        <td><div class="pips">${pips}</div></td>
+        ${actCells}
+      `;
+      tbody.appendChild(tr);
+
+      if(isExp&&t.notes){
+        const etr=document.createElement('tr');
+        etr.className='exp-row';
+        etr.id=`e${t.id}`;
+        etr.innerHTML=`<td colspan="10"><div class="notes-box">${t.notes}</div></td>`;
+        tbody.appendChild(etr);
+      }
+    });
+  });
+}
+
+function toggleExp(id){
+  if(expanded.has(id))expanded.delete(id); else expanded.add(id);
+  renderAll();
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function toInputD(v){
+  if(!v||v==='-'||v==='持續')return '';
+  if(v.includes('/')){const[m,d]=v.split('/');return`2026-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;}
+  return v;
+}
+function fromInputD(v){
+  if(!v)return '';
+  const d=new Date(v);if(isNaN(d))return v;
+  return`${d.getMonth()+1}/${d.getDate()}`;
+}
+function openModal(id){
+  if(!isAuth)return;
+  editId=id||null;
+  document.getElementById('mTitle').textContent=id?'編輯任務':'New Task';
+  if(id){
+    const t=tasks.find(x=>x.id===id);
+    document.getElementById('fName').value=t.name||'';
+    document.getElementById('fGroup').value=t.grp||'專案';
+    document.getElementById('fCat').value=t.cat||'招募任用';
+    document.getElementById('fAss').value=t.ass||'';
+    document.getElementById('fStart').value=toInputD(t.start);
+    document.getElementById('fEnd').value=toInputD(t.end);
+    document.getElementById('fStatus').value=t.status||'待處理';
+    document.getElementById('fCx').value=t.cx||2;
+    document.getElementById('fPg').value=t.pg||0;
+    document.getElementById('fNotes').value=t.notes||'';
+  } else {
+    document.getElementById('fName').value='';
+    document.getElementById('fGroup').value='專案';
+    document.getElementById('fCat').value='招募任用';
+    document.getElementById('fAss').value='';
+    document.getElementById('fStart').value='';
+    document.getElementById('fEnd').value='';
+    document.getElementById('fStatus').value='待處理';
+    document.getElementById('fCx').value='2';
+    document.getElementById('fPg').value='0';
+    document.getElementById('fNotes').value='';
+  }
+  document.getElementById('mBg').classList.add('open');
+  setTimeout(()=>document.getElementById('fName').focus(),80);
+}
+function closeModal(){ document.getElementById('mBg').classList.remove('open'); editId=null; }
+function saveTask(){
+  const name=document.getElementById('fName').value.trim();
+  if(!name){alert('請輸入任務名稱');return;}
+  const data={name, grp:document.getElementById('fGroup').value, cat:document.getElementById('fCat').value,
+    ass:document.getElementById('fAss').value.trim(),
+    start:fromInputD(document.getElementById('fStart').value),
+    end:fromInputD(document.getElementById('fEnd').value),
+    status:document.getElementById('fStatus').value,
+    cx:parseInt(document.getElementById('fCx').value),
+    pg:parseInt(document.getElementById('fPg').value)||0,
+    notes:document.getElementById('fNotes').value.trim()};
+  if(editId){const i=tasks.findIndex(t=>t.id===editId);tasks[i]={...tasks[i],...data};}
+  else tasks.push({id:nextId++,...data});
+  save(); closeModal(); renderAll();
+  showToast(editId?'任務已更新':'任務已新增','✓');
+}
+function delTask(id){
+  if(!isAuth||!confirm('確定刪除？'))return;
+  tasks=tasks.filter(t=>t.id!==id); expanded.delete(id); save(); renderAll();
+  showToast('已刪除','🗑');
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
+function exportExcel(){
+  if(!isAuth)return;
+  const rows=tasks.map((t,i)=>({'編號':i+1,'標題':t.grp||'','大類':t.cat||'','任務名稱':t.name,'執行者':t.ass||'','啟動':t.start||'','截止':t.end||'','狀態':t.status,'進度(%)':t.pg||0,'複雜度':t.cx||1,'重點備註':t.notes||''}));
+  const ws=XLSX.utils.json_to_sheet(rows);
+  ws['!cols']=[{wpx:45},{wpx:55},{wpx:80},{wpx:220},{wpx:85},{wpx:75},{wpx:75},{wpx:75},{wpx:65},{wpx:55},{wpx:380}];
+  const hs={font:{bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'24292f'}},alignment:{horizontal:'center',vertical:'center'}};
+  const rng=XLSX.utils.decode_range(ws['!ref']);
+  for(let C=rng.s.c;C<=rng.e.c;C++){const addr=XLSX.utils.encode_cell({r:0,c:C});if(ws[addr])ws[addr].s=hs;}
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'任務清單');
+  XLSX.writeFile(wb,`HR_Tasks_${new Date().toISOString().slice(0,10)}.xlsx`);
+  showToast('Excel 匯出成功','📊');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+let tt;
+function showToast(msg,icon='✓'){
+  document.getElementById('tMsg').textContent=msg;
+  document.getElementById('tIcon').textContent=icon;
+  const el=document.getElementById('toast');el.classList.add('show');
+  clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeModal();
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'&&isAuth){e.preventDefault();openModal();}
+});
+
+document.addEventListener('DOMContentLoaded', function(){
+  applyAuthUI();
+});
+</script>
+</body>
+</html>
